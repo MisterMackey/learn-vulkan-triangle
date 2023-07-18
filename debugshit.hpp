@@ -17,7 +17,7 @@ VKAPI_ATTR VkBool32 VKAPI_CALL debugCallBack(
 	void *userData);
 
 
-VkResult CreateDebugUtilsMessengerEXT(VkInstance instance, const VkDebugUtilsMessengerCreateInfoEXT *createInfo,
+VkResult CreateDebugUtilsMessengerEXT(VkInstance instance,
 					const VkAllocationCallbacks *allocator, VkDebugUtilsMessengerEXT *debugMessenger);
 
 void destroyDebugUtilsMesssengerExt(VkInstance instance, VkDebugUtilsMessengerEXT debugMessenger, const VkAllocationCallbacks* allocator);
