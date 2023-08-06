@@ -1,3 +1,4 @@
+#include "p_device.hpp"
 #include <cstddef>
 #include <cstdint>
 #include <exception>
@@ -33,6 +34,7 @@ class TriangleApp{
 	GLFWwindow *window;
 	VkInstance vkInstance;
 	VkDebugUtilsMessengerEXT debugMessenger;
+	VkPhysicalDevice physicalDevice = VK_NULL_HANDLE;
 
 	void initWindow(void)
 	{
@@ -45,6 +47,9 @@ class TriangleApp{
 	{
 		createInstance();
 		setupDebugMessenger();
+		p_device::pickPhysicalDevice(&physicalDevice, vkInstance);
+		if (physicalDevice == VK_NULL_HANDLE)
+			throw std::runtime_error("failed to find a suitable GPU");
 	}
 	void mainLoop(void)
 	{
@@ -97,11 +102,17 @@ class TriangleApp{
 
 		//which global validation layers to enable
 		//this should sit in trequirement now
+		
+		//this variable is defined outside the if block to make sure its not destroyed before the vkcreateinstance call
+		VkDebugUtilsMessengerCreateInfoEXT debugCreateInfo{};
 		if (enableValidationLayers){
 			createInfo.enabledLayerCount = static_cast<uint32_t>(trequirement::validationLayers.size());
 			createInfo.ppEnabledLayerNames = trequirement::validationLayers.data();
+			debugshit::populateDebugMessengerStruct(debugCreateInfo);
+			createInfo.pNext = &debugCreateInfo;
 		} else {
 			createInfo.enabledLayerCount = 0;
+			createInfo.pNext = nullptr;
 		}
 		VkResult result = vkCreateInstance(&createInfo, nullptr, &vkInstance);
 		if (result != VK_SUCCESS)
