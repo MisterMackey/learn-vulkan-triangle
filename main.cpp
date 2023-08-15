@@ -33,6 +33,7 @@ class TriangleApp{
 	private:
 	GLFWwindow *window;
 	VkInstance vkInstance;
+	VkDevice device; //logical device
 	VkDebugUtilsMessengerEXT debugMessenger;
 	VkPhysicalDevice physicalDevice = VK_NULL_HANDLE;
 
@@ -50,6 +51,7 @@ class TriangleApp{
 		p_device::pickPhysicalDevice(&physicalDevice, vkInstance);
 		if (physicalDevice == VK_NULL_HANDLE)
 			throw std::runtime_error("failed to find a suitable GPU");
+		p_device::createLogicalDevice(&device, physicalDevice);
 	}
 	void mainLoop(void)
 	{
@@ -59,6 +61,7 @@ class TriangleApp{
 	}
 	void  cleanup(void)
 	{
+		vkDestroyDevice(device, nullptr);
 		if (enableValidationLayers) {
 			debugshit::destroyDebugUtilsMesssengerExt(vkInstance, debugMessenger, nullptr);
 		}
