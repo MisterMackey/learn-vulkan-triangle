@@ -16,6 +16,7 @@
 #include "requirement.hpp"
 #include "p_device.hpp"
 #include "debugshit.hpp"
+#include "presentation.hpp"
 
 const int windowHeight = 800;
 const int windowWidth = 600;
@@ -36,6 +37,7 @@ class TriangleApp{
 	VkDevice device; //logical device
 	VkDebugUtilsMessengerEXT debugMessenger;
 	VkPhysicalDevice physicalDevice = VK_NULL_HANDLE;
+	VkSurfaceKHR surface;
 	VkQueue graphicsQueue;
 
 	void initWindow(void)
@@ -49,6 +51,7 @@ class TriangleApp{
 	{
 		createInstance();
 		setupDebugMessenger();
+		trianglePresentation::createSurface(vkInstance, window, &surface);
 		p_device::pickPhysicalDevice(&physicalDevice, vkInstance);
 		if (physicalDevice == VK_NULL_HANDLE)
 			throw std::runtime_error("failed to find a suitable GPU");
@@ -66,6 +69,7 @@ class TriangleApp{
 		if (enableValidationLayers) {
 			debugshit::destroyDebugUtilsMesssengerExt(vkInstance, debugMessenger, nullptr);
 		}
+		vkDestroySurfaceKHR(vkInstance, surface, nullptr);
 		vkDestroyInstance(vkInstance, nullptr);
 		glfwDestroyWindow(window);
 		glfwTerminate();
