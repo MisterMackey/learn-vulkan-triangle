@@ -1,4 +1,3 @@
-#include "p_device.hpp"
 #include <cstddef>
 #include <cstdint>
 #include <exception>
@@ -15,6 +14,7 @@
 #include <algorithm>
 #include <string.h>
 #include "requirement.hpp"
+#include "p_device.hpp"
 #include "debugshit.hpp"
 
 const int windowHeight = 800;
