@@ -35,7 +35,7 @@ void p_device::pickPhysicalDevice(VkPhysicalDevice *handle_storage, const VkInst
 	}
 }
 
-void p_device::createLogicalDevice(VkDevice *handle_device, const VkPhysicalDevice &device)
+void p_device::createLogicalDevice(VkDevice *handle_device, const VkPhysicalDevice &device, VkQueue *handle_graphicsQueue)
 {
 	QueueFamilyIndices indices = findQueuFamilies(device);
 
@@ -62,6 +62,8 @@ void p_device::createLogicalDevice(VkDevice *handle_device, const VkPhysicalDevi
 	if (vkCreateDevice(device, &createInfo, nullptr, handle_device) != VK_SUCCESS) {
 		throw std::runtime_error("Failed to create logical vulkan device.");
 	}
+
+	vkGetDeviceQueue(*handle_device, indices.graphicsFamily.value(), 0, handle_graphicsQueue);
 }
 
 p_device::QueueFamilyIndices p_device::findQueuFamilies(VkPhysicalDevice device)

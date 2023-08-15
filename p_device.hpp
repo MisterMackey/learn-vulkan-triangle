@@ -13,7 +13,7 @@ namespace p_device{
 const float queuePriority = 1.0f;
 
 void pickPhysicalDevice(VkPhysicalDevice *handle_storage, const VkInstance &instance);
-void createLogicalDevice(VkDevice *handle_device, const VkPhysicalDevice& device);
+void createLogicalDevice(VkDevice *handle_device, const VkPhysicalDevice& device, VkQueue *handle_graphicsQueue);
 
 struct QueueFamilyIndices{
 	std::optional<uint32_t> graphicsFamily;
