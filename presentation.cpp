@@ -1,3 +1,4 @@
+#include <algorithm>
 #include <optional>
 #include <vulkan/vk_platform.h>
 #include <vulkan/vulkan_core.h>
@@ -26,6 +27,16 @@ VkSurfaceFormatKHR trianglePresentation::chooseSwapSurfaceFormat(const std::vect
 			return availableFormat;
 		}
 		//'settle' for this first available if fall through
-		return availableFormats[0];
+	}
+	return availableFormats[0];
+}
+
+VkPresentModeKHR chooseSwapPresentMode(const std::vector<VkPresentModeKHR>& availableModes)
+{
+	//prefer mailbox basically
+	if (std::find(availableModes.begin(), availableModes.end(), VK_PRESENT_MODE_MAILBOX_KHR) != availableModes.end()){
+		return VK_PRESENT_MODE_MAILBOX_KHR;
+	} else {
+		return VK_PRESENT_MODE_FIFO_KHR;
 	}
 }
