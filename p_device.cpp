@@ -6,7 +6,7 @@
 
 using namespace p_device;
 
-bool isSuitable(VkPhysicalDevice device)
+bool isSuitable(VkPhysicalDevice device, const VkSurfaceKHR& surface)
 {
 	VkPhysicalDeviceProperties props;
 	vkGetPhysicalDeviceProperties(device, &props);
@@ -14,11 +14,11 @@ bool isSuitable(VkPhysicalDevice device)
 	vkGetPhysicalDeviceFeatures(device, &features);
 	//here would be code that does stuff and decides based on properties and features
 
-	auto queueIndices = findQueuFamilies(device);
+	auto queueIndices = findQueuFamilies(device, surface);
 	return queueIndices.isComplete();
 }
 
-void p_device::pickPhysicalDevice(VkPhysicalDevice *handle_storage, const VkInstance &instance)
+void p_device::pickPhysicalDevice(VkPhysicalDevice *handle_storage, const VkInstance &instance, const VkSurfaceKHR& surface)
 {
 	uint32_t deviceCount = 0;
 	vkEnumeratePhysicalDevices(instance, &deviceCount, nullptr);
@@ -28,16 +28,16 @@ void p_device::pickPhysicalDevice(VkPhysicalDevice *handle_storage, const VkInst
 	vkEnumeratePhysicalDevices(instance, &deviceCount, devices.data());
 
 	for (const auto& device: devices) {
-		if (isSuitable(device)) {
+		if (isSuitable(device, surface)) {
 			*handle_storage = device;
 			break;
 		}
 	}
 }
 
-void p_device::createLogicalDevice(VkDevice *handle_device, const VkPhysicalDevice &device, VkQueue *handle_graphicsQueue)
+void p_device::createLogicalDevice(VkDevice *handle_device, const VkPhysicalDevice &device, VkQueue *handle_graphicsQueue, const VkSurfaceKHR& surface)
 {
-	QueueFamilyIndices indices = findQueuFamilies(device);
+	QueueFamilyIndices indices = findQueuFamilies(device, surface);
 
 	VkDeviceQueueCreateInfo queueCreateInfo{};
 	queueCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
@@ -66,7 +66,7 @@ void p_device::createLogicalDevice(VkDevice *handle_device, const VkPhysicalDevi
 	vkGetDeviceQueue(*handle_device, indices.graphicsFamily.value(), 0, handle_graphicsQueue);
 }
 
-p_device::QueueFamilyIndices p_device::findQueuFamilies(VkPhysicalDevice device)
+p_device::QueueFamilyIndices p_device::findQueuFamilies(VkPhysicalDevice device, const VkSurfaceKHR& surface)
 {
 	QueueFamilyIndices indices;
 
@@ -82,7 +82,14 @@ p_device::QueueFamilyIndices p_device::findQueuFamilies(VkPhysicalDevice device)
 	for (const auto& queueFamily : queueFamilies) {
 		if (queueFamily.queueFlags & VK_QUEUE_GRAPHICS_BIT) {
 			indices.graphicsFamily = i;
-			if (indices.isComplete()) 
+			if (indices.isComplete())
+				break;
+		}
+		VkBool32 presentationSupport = false;
+		vkGetPhysicalDeviceSurfaceSupportKHR(device, i, surface, &presentationSupport);
+		if (presentationSupport){
+			indices.presentFamily = i;
+			if (indices.isComplete())
 				break;
 		}
 		i++;

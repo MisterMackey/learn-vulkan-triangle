@@ -52,10 +52,10 @@ class TriangleApp{
 		createInstance();
 		setupDebugMessenger();
 		trianglePresentation::createSurface(vkInstance, window, &surface);
-		p_device::pickPhysicalDevice(&physicalDevice, vkInstance);
+		p_device::pickPhysicalDevice(&physicalDevice, vkInstance, surface);
 		if (physicalDevice == VK_NULL_HANDLE)
 			throw std::runtime_error("failed to find a suitable GPU");
-		p_device::createLogicalDevice(&device, physicalDevice, &graphicsQueue);
+		p_device::createLogicalDevice(&device, physicalDevice, &graphicsQueue, surface);
 	}
 	void mainLoop(void)
 	{
@@ -78,7 +78,7 @@ class TriangleApp{
 	{
 		if (!enableValidationLayers)
 			return;
-		
+
 		if (debugshit::CreateDebugUtilsMessengerEXT(vkInstance, nullptr, &debugMessenger) != VK_SUCCESS)
 			throw std::runtime_error("Failed to set up debug messenger");
 
@@ -110,7 +110,7 @@ class TriangleApp{
 
 		//which global validation layers to enable
 		//this should sit in trequirement now
-		
+
 		//this variable is defined outside the if block to make sure its not destroyed before the vkcreateinstance call
 		VkDebugUtilsMessengerCreateInfoEXT debugCreateInfo{};
 		if (enableValidationLayers){
