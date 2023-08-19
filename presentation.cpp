@@ -68,7 +68,7 @@ VkExtent2D trianglePresentation::chooseSwapExtent(const VkSurfaceCapabilitiesKHR
 	}
 }
 
-void trianglePresentation::createSwapchain(VkPhysicalDevice physicalDevice, VkDevice logicalDevice, VkSurfaceKHR surface, GLFWwindow* window, VkSwapchainKHR* handle_swapchain)
+void trianglePresentation::createSwapchain(VkPhysicalDevice physicalDevice, VkDevice logicalDevice, VkSurfaceKHR surface, GLFWwindow* window, swapchainInformation& handle_swapchainInfo)
 {
 	auto support = trequirement::querySwapChainSupport(physicalDevice, surface);
 	auto format = chooseSwapSurfaceFormat(support.formats);
@@ -109,7 +109,10 @@ void trianglePresentation::createSwapchain(VkPhysicalDevice physicalDevice, VkDe
 
 	createInfo.oldSwapchain = VK_NULL_HANDLE;
 
-	if (vkCreateSwapchainKHR(logicalDevice, &createInfo, nullptr, handle_swapchain) != VK_SUCCESS) {
+	if (vkCreateSwapchainKHR(logicalDevice, &createInfo, nullptr, &handle_swapchainInfo.swapchain) != VK_SUCCESS) {
 		throw std::runtime_error("Failed to create swap chain");
 	}
+	vkGetSwapchainImagesKHR(logicalDevice, handle_swapchainInfo.swapchain, &imageCount, nullptr);
+	handle_swapchainInfo.swapchainImages.resize(imageCount);
+	vkGetSwapchainImagesKHR(logicalDevice, handle_swapchainInfo.swapchain, &imageCount, handle_swapchainInfo.swapchainImages.data());
 }
