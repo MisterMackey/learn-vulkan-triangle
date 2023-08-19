@@ -1,8 +1,10 @@
 #include "p_device.hpp"
+#include <cstdint>
 #include <stdexcept>
 #include <vulkan/vulkan_core.h>
 #include <vector>
 #include "p_device.hpp"
+#include <set>
 
 using namespace p_device;
 
@@ -35,22 +37,28 @@ void p_device::pickPhysicalDevice(VkPhysicalDevice *handle_storage, const VkInst
 	}
 }
 
-void p_device::createLogicalDevice(VkDevice *handle_device, const VkPhysicalDevice &device, VkQueue *handle_graphicsQueue, const VkSurfaceKHR& surface)
+void p_device::createLogicalDevice(VkDevice *handle_device, const VkPhysicalDevice &device, VkQueue *handle_graphicsQueue, VkQueue *handle_presentQueue, const VkSurfaceKHR& surface)
 {
 	QueueFamilyIndices indices = findQueuFamilies(device, surface);
 
-	VkDeviceQueueCreateInfo queueCreateInfo{};
-	queueCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
-	queueCreateInfo.queueFamilyIndex = indices.graphicsFamily.value();
-	queueCreateInfo.queueCount = 1;
-	queueCreateInfo.pQueuePriorities = &queuePriority;
-	VkPhysicalDeviceFeatures deviceFeatures{}; //features we want, we get back to this later
+	std::vector<VkDeviceQueueCreateInfo> queueCreateInfos;
+	std::set<uint32_t> uniqueQueueFamilies = {indices.graphicsFamily.value(), indices.presentFamily.value()};
 
+	for (uint32_t queueFamily: uniqueQueueFamilies){
+		VkDeviceQueueCreateInfo queueCreateInfo{};
+		queueCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
+		queueCreateInfo.queueFamilyIndex = queueFamily;
+		queueCreateInfo.queueCount = 1;
+		queueCreateInfo.pQueuePriorities = &queuePriority;
+		queueCreateInfos.push_back(queueCreateInfo);
+	}
+
+	VkPhysicalDeviceFeatures deviceFeatures{}; //features we want, we get back to this later
 	//that does it for the queue we want, now to make the device itself
 	VkDeviceCreateInfo createInfo{};
 	createInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
-	createInfo.queueCreateInfoCount = 1;
-	createInfo.pQueueCreateInfos = &queueCreateInfo;
+	createInfo.queueCreateInfoCount = static_cast<uint32_t>(queueCreateInfos.size());
+	createInfo.pQueueCreateInfos = queueCreateInfos.data();
 	createInfo.pEnabledFeatures = &deviceFeatures;
 	//for older implementations, the info for validation layers should be set. newer implementations ignore this
 	//because there is no more distinction between device and instance specific validation layers.
@@ -64,6 +72,7 @@ void p_device::createLogicalDevice(VkDevice *handle_device, const VkPhysicalDevi
 	}
 
 	vkGetDeviceQueue(*handle_device, indices.graphicsFamily.value(), 0, handle_graphicsQueue);
+	vkGetDeviceQueue(*handle_device, indices.presentFamily.value(), 0, handle_presentQueue);
 }
 
 p_device::QueueFamilyIndices p_device::findQueuFamilies(VkPhysicalDevice device, const VkSurfaceKHR& surface)

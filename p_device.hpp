@@ -14,7 +14,7 @@ namespace p_device{
 const float queuePriority = 1.0f;
 
 void pickPhysicalDevice(VkPhysicalDevice *handle_storage, const VkInstance &instance, const VkSurfaceKHR& surface);
-void createLogicalDevice(VkDevice *handle_device, const VkPhysicalDevice &device, VkQueue *handle_graphicsQueue, const VkSurfaceKHR& surface);
+void createLogicalDevice(VkDevice *handle_device, const VkPhysicalDevice &device, VkQueue *handle_graphicsQueue, VkQueue *handle_presentQueue, const VkSurfaceKHR& surface);
 
 struct QueueFamilyIndices{
 	std::optional<uint32_t> graphicsFamily;

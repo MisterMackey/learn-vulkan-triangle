@@ -39,6 +39,7 @@ class TriangleApp{
 	VkPhysicalDevice physicalDevice = VK_NULL_HANDLE;
 	VkSurfaceKHR surface;
 	VkQueue graphicsQueue;
+	VkQueue presentQueue;
 
 	void initWindow(void)
 	{
@@ -55,7 +56,7 @@ class TriangleApp{
 		p_device::pickPhysicalDevice(&physicalDevice, vkInstance, surface);
 		if (physicalDevice == VK_NULL_HANDLE)
 			throw std::runtime_error("failed to find a suitable GPU");
-		p_device::createLogicalDevice(&device, physicalDevice, &graphicsQueue, surface);
+		p_device::createLogicalDevice(&device, physicalDevice, &graphicsQueue, &presentQueue, surface);
 	}
 	void mainLoop(void)
 	{
