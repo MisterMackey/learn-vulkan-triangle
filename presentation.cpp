@@ -17,3 +17,15 @@ void trianglePresentation::createSurface(const VkInstance& instance, GLFWwindow 
 		throw std::runtime_error("Failed to create window surface");
 	}
 }
+
+VkSurfaceFormatKHR trianglePresentation::chooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR>& availableFormats)
+{
+	for (const auto& availableFormat : availableFormats){
+		//easy situation
+		if (availableFormat.format == VK_FORMAT_B8G8R8_SRGB && availableFormat.colorSpace == VK_COLOR_SPACE_SRGB_NONLINEAR_KHR){
+			return availableFormat;
+		}
+		//'settle' for this first available if fall through
+		return availableFormats[0];
+	}
+}

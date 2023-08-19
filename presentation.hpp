@@ -2,6 +2,7 @@
 #define TRIANGLE_PRESENTATION_HEADER
 
 #include <optional>
+#include <vector>
 #include <vulkan/vk_platform.h>
 #include <vulkan/vulkan_core.h>
 //below define and include tells the included header to also include vulkan deps
@@ -11,6 +12,7 @@
 namespace trianglePresentation{
 
 	void createSurface(const VkInstance& instance, GLFWwindow *window, VkSurfaceKHR *surface);
+	VkSurfaceFormatKHR chooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR>& availableFormats);
 
 }
 
