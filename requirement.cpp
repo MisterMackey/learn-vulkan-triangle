@@ -15,6 +15,28 @@
 
 using namespace trequirement;
 
+bool checkDeviceExtensionSupport(VkPhysicalDevice device)
+{
+	uint32_t extensionCount;
+	vkEnumerateDeviceExtensionProperties(device, nullptr, &extensionCount, nullptr);
+	std::vector<VkExtensionProperties> availableExtensions(extensionCount);
+	vkEnumerateDeviceExtensionProperties(device, nullptr, &extensionCount, availableExtensions.data());
+
+	bool success = true;
+	for (const auto& requiredExtension : requiredDeviceExtensions){
+		if (std::find_if(availableExtensions.begin(), availableExtensions.end(),
+		[&requiredExtension](VkExtensionProperties extension) { return strcmp(requiredExtension, extension.extensionName) == 0; }) != availableExtensions.end()){
+
+			std::cout << "Requirement met: " << requiredExtension << std::endl;
+		} else {
+			std::cerr << "Requirement not met: " << requiredExtension << std::endl;
+			success = false;
+		}
+
+	}
+	return success;
+}
+
 bool trequirement::checkValidationLayerSupport(void)
 {
 	uint32_t layerCount;
@@ -72,7 +94,7 @@ std::vector<const char*> trequirement::getRequiredExtensions()
 	return extvec;
 }
 
-bool trequirement::isSuitableDevice(VkPhysicalDevice device, const VkSurfaceKHR& surface)
+bool trequirement::isDeviceSuitable(VkPhysicalDevice device, const VkSurfaceKHR& surface)
 {
 	VkPhysicalDeviceProperties props;
 	vkGetPhysicalDeviceProperties(device, &props);
@@ -81,6 +103,7 @@ bool trequirement::isSuitableDevice(VkPhysicalDevice device, const VkSurfaceKHR&
 	//here would be code that does stuff and decides based on properties and features
 
 	auto queueIndices = findQueuFamilies(device, surface);
+	bool extensionsSupported = checkDeviceExtensionSupport(device);
 	return queueIndices.isComplete();
 }
 

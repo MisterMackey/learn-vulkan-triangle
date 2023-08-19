@@ -20,7 +20,7 @@ void p_device::pickPhysicalDevice(VkPhysicalDevice *handle_storage, const VkInst
 	vkEnumeratePhysicalDevices(instance, &deviceCount, devices.data());
 
 	for (const auto& device: devices) {
-		if (isSuitableDevice(device, surface)) {
+		if (isDeviceSuitable(device, surface)) {
 			*handle_storage = device;
 			break;
 		}

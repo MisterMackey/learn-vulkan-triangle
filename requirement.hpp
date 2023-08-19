@@ -11,6 +11,10 @@
 	const bool enableValidationLayers = true;
 #endif
 
+const std::vector<const char*> requiredDeviceExtensions = {
+	VK_KHR_SWAPCHAIN_EXTENSION_NAME
+};
+
 namespace trequirement {
 
 bool checkValidationLayerSupport();
@@ -19,7 +23,7 @@ const std::vector<const char*> validationLayers = {
 	"VK_LAYER_KHRONOS_validation"
 };
 std::vector<const char*> getRequiredExtensions();
-bool isSuitableDevice(VkPhysicalDevice device, const VkSurfaceKHR& surface);
+bool isDeviceSuitable(VkPhysicalDevice device, const VkSurfaceKHR& surface);
 p_device::QueueFamilyIndices findQueuFamilies(VkPhysicalDevice device, const VkSurfaceKHR& surface);
 
 }
