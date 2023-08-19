@@ -37,6 +37,26 @@ bool checkDeviceExtensionSupport(VkPhysicalDevice device)
 	return success;
 }
 
+SwapChainSupportDetails querySwapChainSupport(VkPhysicalDevice device, VkSurfaceKHR surface)
+{
+	SwapChainSupportDetails details;
+	vkGetPhysicalDeviceSurfaceCapabilitiesKHR(device, surface, &details.capabilities);
+	uint32_t formatCount;
+	vkGetPhysicalDeviceSurfaceFormatsKHR(device, surface, &formatCount, nullptr);
+	if (formatCount != 0){
+		details.formats.resize(formatCount);
+		vkGetPhysicalDeviceSurfaceFormatsKHR(device, surface, &formatCount, details.formats.data());
+	}
+	uint32_t presentModeCount;
+	vkGetPhysicalDeviceSurfacePresentModesKHR(device, surface, &presentModeCount, nullptr);
+	if (formatCount != 0) {
+		details.presentModes.resize(presentModeCount);
+		vkGetPhysicalDeviceSurfacePresentModesKHR(device, surface, &presentModeCount, details.presentModes.data());
+	}
+
+	return details;
+}
+
 bool trequirement::checkValidationLayerSupport(void)
 {
 	uint32_t layerCount;
@@ -94,6 +114,7 @@ std::vector<const char*> trequirement::getRequiredExtensions()
 	return extvec;
 }
 
+//not sure if the reference taking is valid here but it seems to work
 bool trequirement::isDeviceSuitable(VkPhysicalDevice device, const VkSurfaceKHR& surface)
 {
 	VkPhysicalDeviceProperties props;
@@ -104,7 +125,11 @@ bool trequirement::isDeviceSuitable(VkPhysicalDevice device, const VkSurfaceKHR&
 
 	auto queueIndices = findQueuFamilies(device, surface);
 	bool extensionsSupported = checkDeviceExtensionSupport(device);
-	return queueIndices.isComplete();
+	if (!extensionsSupported) return false;
+	auto support = querySwapChainSupport(device, surface);
+	bool swapChainAdequate = !support.formats.empty() && !support.presentModes.empty();
+
+	return queueIndices.isComplete() && extensionsSupported && swapChainAdequate;
 }
 
 p_device::QueueFamilyIndices trequirement::findQueuFamilies(VkPhysicalDevice device, const VkSurfaceKHR& surface)

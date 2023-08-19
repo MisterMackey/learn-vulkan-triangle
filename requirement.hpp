@@ -17,6 +17,12 @@ const std::vector<const char*> requiredDeviceExtensions = {
 
 namespace trequirement {
 
+struct SwapChainSupportDetails {
+	VkSurfaceCapabilitiesKHR capabilities;
+	std::vector<VkSurfaceFormatKHR> formats;
+	std::vector<VkPresentModeKHR> presentModes;
+};
+
 bool checkValidationLayerSupport();
 void verifyRequiredExtensionsPresent(const char **required, int nreq);
 const std::vector<const char*> validationLayers = {
