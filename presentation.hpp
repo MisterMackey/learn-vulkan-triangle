@@ -14,6 +14,7 @@ namespace trianglePresentation{
 	void createSurface(const VkInstance& instance, GLFWwindow *window, VkSurfaceKHR *surface);
 	VkSurfaceFormatKHR chooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR>& availableFormats);
 	VkPresentModeKHR chooseSwapPresentMode(const std::vector<VkPresentModeKHR>& availableModes);
+	VkExtent2D chooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabilities);
 
 }
 

@@ -1,4 +1,5 @@
 #include <algorithm>
+#include <limits>
 #include <optional>
 #include <vulkan/vk_platform.h>
 #include <vulkan/vulkan_core.h>
@@ -38,5 +39,29 @@ VkPresentModeKHR chooseSwapPresentMode(const std::vector<VkPresentModeKHR>& avai
 		return VK_PRESENT_MODE_MAILBOX_KHR;
 	} else {
 		return VK_PRESENT_MODE_FIFO_KHR;
+	}
+}
+
+VkExtent2D chooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabilities, GLFWwindow* window)
+{
+	//current extent will be correct in many cases, if not it will be set to the max value of uint32
+	// it could be incorrect if screen coordinates (used by glfw) differ from pixels or if the window manager gives us leeway to put any value between two bounds
+	//in the simple case currentextent will simply be equal to the window size inpixels
+	if (capabilities.currentExtent.width != std::numeric_limits<uint32_t>::max()){
+		return capabilities.currentExtent;
+	} else {
+		//pick w/h
+		int width;
+		int height;
+		glfwGetFramebufferSize(window, &width, &height);
+		//im following the tutorial here but wtf if i want to resize my window?
+		VkExtent2D actual = {
+			static_cast<uint32_t>(width),
+			static_cast<uint32_t>(height)
+		};
+		//ensure it is between the min and max capable values
+		actual.width = std::clamp(actual.width, capabilities.minImageExtent.width, capabilities.maxImageExtent.width);
+		actual.height = std::clamp(actual.height, capabilities.minImageExtent.height, capabilities.maxImageExtent.height);
+		return actual;
 	}
 }
