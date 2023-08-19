@@ -50,6 +50,8 @@ void p_device::createLogicalDevice(VkDevice *handle_device, const VkPhysicalDevi
 	createInfo.queueCreateInfoCount = static_cast<uint32_t>(queueCreateInfos.size());
 	createInfo.pQueueCreateInfos = queueCreateInfos.data();
 	createInfo.pEnabledFeatures = &deviceFeatures;
+	createInfo.enabledExtensionCount = static_cast<uint32_t>(requiredDeviceExtensions.size());
+	createInfo.ppEnabledExtensionNames = requiredDeviceExtensions.data();
 	//for older implementations, the info for validation layers should be set. newer implementations ignore this
 	//because there is no more distinction between device and instance specific validation layers.
 	//to be compatible this info should be set, but im lazy and the info is in another file so im leaving it blank for now
