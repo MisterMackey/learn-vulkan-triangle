@@ -1,1 +1,1 @@
-/usr/bin/c++ -rdynamic CMakeFiles/Triangle.dir/main.cpp.o CMakeFiles/Triangle.dir/debugshit.cpp.o CMakeFiles/Triangle.dir/p_device.cpp.o CMakeFiles/Triangle.dir/requirement.cpp.o CMakeFiles/Triangle.dir/presentation.cpp.o -o Triangle 
+/usr/bin/c++ -rdynamic -lglfw -lvulkan -ldl -lpthread -lX11 -lXxf86vm -lXrandr -lXi CMakeFiles/Triangle.dir/main.cpp.o CMakeFiles/Triangle.dir/debugshit.cpp.o CMakeFiles/Triangle.dir/p_device.cpp.o CMakeFiles/Triangle.dir/requirement.cpp.o CMakeFiles/Triangle.dir/presentation.cpp.o -o Triangle 
