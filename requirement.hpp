@@ -11,11 +11,14 @@
 	const bool enableValidationLayers = true;
 #endif
 
+namespace trequirement {
 const std::vector<const char*> requiredDeviceExtensions = {
 	VK_KHR_SWAPCHAIN_EXTENSION_NAME
 };
+const std::vector<const char*> validationLayers = {
+	"VK_LAYER_KHRONOS_validation"
+};
 
-namespace trequirement {
 
 struct SwapChainSupportDetails {
 	VkSurfaceCapabilitiesKHR capabilities;
@@ -25,12 +28,10 @@ struct SwapChainSupportDetails {
 
 bool checkValidationLayerSupport();
 void verifyRequiredExtensionsPresent(const char **required, int nreq);
-const std::vector<const char*> validationLayers = {
-	"VK_LAYER_KHRONOS_validation"
-};
 std::vector<const char*> getRequiredExtensions();
 bool isDeviceSuitable(VkPhysicalDevice device, const VkSurfaceKHR& surface);
 p_device::QueueFamilyIndices findQueuFamilies(VkPhysicalDevice device, const VkSurfaceKHR& surface);
+SwapChainSupportDetails querySwapChainSupport(VkPhysicalDevice device, VkSurfaceKHR surface);
 
 }
 

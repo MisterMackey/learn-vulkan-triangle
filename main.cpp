@@ -40,6 +40,7 @@ class TriangleApp{
 	VkSurfaceKHR surface;
 	VkQueue graphicsQueue;
 	VkQueue presentQueue;
+	VkSwapchainKHR swapchain;
 
 	void initWindow(void)
 	{
@@ -57,6 +58,8 @@ class TriangleApp{
 		if (physicalDevice == VK_NULL_HANDLE)
 			throw std::runtime_error("failed to find a suitable GPU");
 		p_device::createLogicalDevice(&device, physicalDevice, &graphicsQueue, &presentQueue, surface);
+		trianglePresentation::createSwapchain(physicalDevice, device, surface, window, &swapchain);
+
 	}
 	void mainLoop(void)
 	{
@@ -66,6 +69,7 @@ class TriangleApp{
 	}
 	void  cleanup(void)
 	{
+		vkDestroySwapchainKHR(device, swapchain, nullptr);
 		vkDestroyDevice(device, nullptr);
 		if (enableValidationLayers) {
 			debugshit::destroyDebugUtilsMesssengerExt(vkInstance, debugMessenger, nullptr);

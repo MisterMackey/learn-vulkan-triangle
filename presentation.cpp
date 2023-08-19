@@ -1,3 +1,4 @@
+#include "p_device.hpp"
 #include <algorithm>
 #include <limits>
 #include <optional>
@@ -10,6 +11,7 @@
 #include <cstddef>
 #include <cstdint>
 #include <stdexcept>
+#include "requirement.hpp"
 
 using namespace trianglePresentation;
 
@@ -32,7 +34,7 @@ VkSurfaceFormatKHR trianglePresentation::chooseSwapSurfaceFormat(const std::vect
 	return availableFormats[0];
 }
 
-VkPresentModeKHR chooseSwapPresentMode(const std::vector<VkPresentModeKHR>& availableModes)
+VkPresentModeKHR trianglePresentation::chooseSwapPresentMode(const std::vector<VkPresentModeKHR>& availableModes)
 {
 	//prefer mailbox basically
 	if (std::find(availableModes.begin(), availableModes.end(), VK_PRESENT_MODE_MAILBOX_KHR) != availableModes.end()){
@@ -42,7 +44,7 @@ VkPresentModeKHR chooseSwapPresentMode(const std::vector<VkPresentModeKHR>& avai
 	}
 }
 
-VkExtent2D chooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabilities, GLFWwindow* window)
+VkExtent2D trianglePresentation::chooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabilities, GLFWwindow* window)
 {
 	//current extent will be correct in many cases, if not it will be set to the max value of uint32
 	// it could be incorrect if screen coordinates (used by glfw) differ from pixels or if the window manager gives us leeway to put any value between two bounds
@@ -63,5 +65,51 @@ VkExtent2D chooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabilities, GLFWwi
 		actual.width = std::clamp(actual.width, capabilities.minImageExtent.width, capabilities.maxImageExtent.width);
 		actual.height = std::clamp(actual.height, capabilities.minImageExtent.height, capabilities.maxImageExtent.height);
 		return actual;
+	}
+}
+
+void trianglePresentation::createSwapchain(VkPhysicalDevice physicalDevice, VkDevice logicalDevice, VkSurfaceKHR surface, GLFWwindow* window, VkSwapchainKHR* handle_swapchain)
+{
+	auto support = trequirement::querySwapChainSupport(physicalDevice, surface);
+	auto format = chooseSwapSurfaceFormat(support.formats);
+	auto presentMode = chooseSwapPresentMode(support.presentModes);
+	auto extent = chooseSwapExtent(support.capabilities, window);
+
+	uint32_t imageCount = support.capabilities.minImageCount + 1;
+	if (support.capabilities.maxImageCount > 0 && imageCount > support.capabilities.maxImageCount)
+		imageCount = support.capabilities.maxImageCount;
+
+	VkSwapchainCreateInfoKHR createInfo{};
+	createInfo.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
+	createInfo.surface = surface;
+	createInfo.minImageCount = imageCount;
+	createInfo.imageFormat = format.format;
+	createInfo.imageColorSpace = format.colorSpace;
+	createInfo.imageExtent = extent;
+	createInfo.imageArrayLayers = 1;
+	createInfo.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
+
+	p_device::QueueFamilyIndices indices = trequirement::findQueuFamilies(physicalDevice, surface);
+
+	if (indices.graphicsFamily == indices.presentFamily){
+		createInfo.imageSharingMode = VK_SHARING_MODE_EXCLUSIVE; //better performance
+		//rest is optional
+	} else {
+		createInfo.imageSharingMode = VK_SHARING_MODE_CONCURRENT; //slower but avoids ownership which i don't learn yet in this chapter
+		createInfo.queueFamilyIndexCount = 2;
+		uint32_t QueueIndices[] = {indices.graphicsFamily.value(), indices.presentFamily.value()};
+		createInfo.pQueueFamilyIndices = QueueIndices;
+	}
+
+	createInfo.preTransform = support.capabilities.currentTransform;
+	createInfo.compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;
+
+	createInfo.presentMode = presentMode;
+	createInfo.clipped = VK_TRUE;
+
+	createInfo.oldSwapchain = VK_NULL_HANDLE;
+
+	if (vkCreateSwapchainKHR(logicalDevice, &createInfo, nullptr, handle_swapchain) != VK_SUCCESS) {
+		throw std::runtime_error("Failed to create swap chain");
 	}
 }
