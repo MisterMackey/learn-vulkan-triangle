@@ -115,4 +115,6 @@ void trianglePresentation::createSwapchain(VkPhysicalDevice physicalDevice, VkDe
 	vkGetSwapchainImagesKHR(logicalDevice, handle_swapchainInfo.swapchain, &imageCount, nullptr);
 	handle_swapchainInfo.swapchainImages.resize(imageCount);
 	vkGetSwapchainImagesKHR(logicalDevice, handle_swapchainInfo.swapchain, &imageCount, handle_swapchainInfo.swapchainImages.data());
+	handle_swapchainInfo.swapchainImageFormat = format.format;
+	handle_swapchainInfo.swapchainExtent = extent;
 }
