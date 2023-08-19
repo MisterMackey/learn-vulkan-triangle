@@ -5,20 +5,10 @@
 #include <vector>
 #include "p_device.hpp"
 #include <set>
+#include "requirement.hpp"
 
 using namespace p_device;
-
-bool isSuitable(VkPhysicalDevice device, const VkSurfaceKHR& surface)
-{
-	VkPhysicalDeviceProperties props;
-	vkGetPhysicalDeviceProperties(device, &props);
-	VkPhysicalDeviceFeatures features;
-	vkGetPhysicalDeviceFeatures(device, &features);
-	//here would be code that does stuff and decides based on properties and features
-
-	auto queueIndices = findQueuFamilies(device, surface);
-	return queueIndices.isComplete();
-}
+using namespace trequirement;
 
 void p_device::pickPhysicalDevice(VkPhysicalDevice *handle_storage, const VkInstance &instance, const VkSurfaceKHR& surface)
 {
@@ -30,7 +20,7 @@ void p_device::pickPhysicalDevice(VkPhysicalDevice *handle_storage, const VkInst
 	vkEnumeratePhysicalDevices(instance, &deviceCount, devices.data());
 
 	for (const auto& device: devices) {
-		if (isSuitable(device, surface)) {
+		if (isSuitableDevice(device, surface)) {
 			*handle_storage = device;
 			break;
 		}
@@ -73,36 +63,4 @@ void p_device::createLogicalDevice(VkDevice *handle_device, const VkPhysicalDevi
 
 	vkGetDeviceQueue(*handle_device, indices.graphicsFamily.value(), 0, handle_graphicsQueue);
 	vkGetDeviceQueue(*handle_device, indices.presentFamily.value(), 0, handle_presentQueue);
-}
-
-p_device::QueueFamilyIndices p_device::findQueuFamilies(VkPhysicalDevice device, const VkSurfaceKHR& surface)
-{
-	QueueFamilyIndices indices;
-
-	//retrieve list of queu families supported by device
-	uint32_t queueFamilyCount = 0;
-	vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount, nullptr);
-	std::vector<VkQueueFamilyProperties> queueFamilies(queueFamilyCount);
-	vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount, queueFamilies.data());
-
-	//were gonna look for a queue family with the vk queue graphics bit support
-	//if i did this myself i would probably just use std iterator tools to find the ref and pass that around but im following a tutorial so...
-	int i = 0;
-	for (const auto& queueFamily : queueFamilies) {
-		if (queueFamily.queueFlags & VK_QUEUE_GRAPHICS_BIT) {
-			indices.graphicsFamily = i;
-			if (indices.isComplete())
-				break;
-		}
-		VkBool32 presentationSupport = false;
-		vkGetPhysicalDeviceSurfaceSupportKHR(device, i, surface, &presentationSupport);
-		if (presentationSupport){
-			indices.presentFamily = i;
-			if (indices.isComplete())
-				break;
-		}
-		i++;
-	}
-
-	return indices;
 }

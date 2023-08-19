@@ -26,7 +26,6 @@ struct QueueFamilyIndices{
 	}
 };
 
-QueueFamilyIndices findQueuFamilies(VkPhysicalDevice device, const VkSurfaceKHR& surface);
 
 }
 
