@@ -61,6 +61,9 @@ class TriangleApp{
 		p_device::createLogicalDevice(&device, physicalDevice, &graphicsQueue, &presentQueue, surface);
 		trianglePresentation::createSwapchain(physicalDevice, device, surface, window, swapchainInfo);
 		createImageViews();
+		//im giving up on splitting all this shit up into files. I don't know enough to properly factor this shit anyway.
+		//so im just following the tutorial now
+		createGraphicsPipeline();
 
 	}
 	void mainLoop(void)
@@ -159,6 +162,11 @@ class TriangleApp{
 				throw std::runtime_error("Failed to create an image view");
 			}
 		}
+	}
+
+	void createGraphicsPipeline(void)
+	{
+
 	}
 };
 
