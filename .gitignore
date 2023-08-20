@@ -3,3 +3,4 @@ Triangle
 .cache
 build/
 CMakeFiles/
+*.spv
