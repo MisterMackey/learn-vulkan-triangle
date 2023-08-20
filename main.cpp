@@ -174,6 +174,19 @@ class TriangleApp{
 		VkShaderModule vertexShaderModule = createShaderModule(vertexShaderCode, device);
 		VkShaderModule fragShaderModule = createShaderModule(fragShaderCode, device);
 
+		//possible target to move to other file
+		VkPipelineShaderStageCreateInfo vertShaderStageInfo {};
+		vertShaderStageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
+		vertShaderStageInfo.stage = VK_SHADER_STAGE_VERTEX_BIT;
+		vertShaderStageInfo.module = vertexShaderModule;
+		vertShaderStageInfo.pName = "main";
+		VkPipelineShaderStageCreateInfo fragShaderStageInfo {};
+		fragShaderStageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
+		fragShaderStageInfo.stage = VK_SHADER_STAGE_FRAGMENT_BIT;
+		fragShaderStageInfo.module = fragShaderModule;
+		fragShaderStageInfo.pName = "main";
+
+		VkPipelineShaderStageCreateInfo shaderStages[] = {vertShaderStageInfo, fragShaderStageInfo};
 
 		//wut?
 		vkDestroyShaderModule(device, fragShaderModule, nullptr);
