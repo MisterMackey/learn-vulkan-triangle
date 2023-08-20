@@ -1,3 +1,4 @@
+/mnt/dev/vulkan/mastering-graphics-programming/triangle/CMakeFiles/Shaders.dir
 /mnt/dev/vulkan/mastering-graphics-programming/triangle/CMakeFiles/Triangle.dir
 /mnt/dev/vulkan/mastering-graphics-programming/triangle/CMakeFiles/edit_cache.dir
 /mnt/dev/vulkan/mastering-graphics-programming/triangle/CMakeFiles/rebuild_cache.dir

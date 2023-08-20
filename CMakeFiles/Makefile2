@@ -71,22 +71,49 @@ preinstall:
 .PHONY : preinstall
 
 # The main recursive "clean" target.
+clean: CMakeFiles/Shaders.dir/clean
 clean: CMakeFiles/Triangle.dir/clean
 .PHONY : clean
+
+#=============================================================================
+# Target rules for target CMakeFiles/Shaders.dir
+
+# All Build rule for target.
+CMakeFiles/Shaders.dir/all:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Shaders.dir/build.make CMakeFiles/Shaders.dir/depend
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Shaders.dir/build.make CMakeFiles/Shaders.dir/build
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/mnt/dev/vulkan/mastering-graphics-programming/triangle/CMakeFiles --progress-num=1,2 "Built target Shaders"
+.PHONY : CMakeFiles/Shaders.dir/all
+
+# Build rule for subdir invocation for target.
+CMakeFiles/Shaders.dir/rule: cmake_check_build_system
+	$(CMAKE_COMMAND) -E cmake_progress_start /mnt/dev/vulkan/mastering-graphics-programming/triangle/CMakeFiles 2
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 CMakeFiles/Shaders.dir/all
+	$(CMAKE_COMMAND) -E cmake_progress_start /mnt/dev/vulkan/mastering-graphics-programming/triangle/CMakeFiles 0
+.PHONY : CMakeFiles/Shaders.dir/rule
+
+# Convenience name for target.
+Shaders: CMakeFiles/Shaders.dir/rule
+.PHONY : Shaders
+
+# clean rule for target.
+CMakeFiles/Shaders.dir/clean:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Shaders.dir/build.make CMakeFiles/Shaders.dir/clean
+.PHONY : CMakeFiles/Shaders.dir/clean
 
 #=============================================================================
 # Target rules for target CMakeFiles/Triangle.dir
 
 # All Build rule for target.
-CMakeFiles/Triangle.dir/all:
+CMakeFiles/Triangle.dir/all: CMakeFiles/Shaders.dir/all
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/Triangle.dir/build.make CMakeFiles/Triangle.dir/depend
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/Triangle.dir/build.make CMakeFiles/Triangle.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/mnt/dev/vulkan/mastering-graphics-programming/triangle/CMakeFiles --progress-num=1,2,3,4,5,6 "Built target Triangle"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/mnt/dev/vulkan/mastering-graphics-programming/triangle/CMakeFiles --progress-num=3,4,5,6,7,8 "Built target Triangle"
 .PHONY : CMakeFiles/Triangle.dir/all
 
 # Build rule for subdir invocation for target.
 CMakeFiles/Triangle.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /mnt/dev/vulkan/mastering-graphics-programming/triangle/CMakeFiles 6
+	$(CMAKE_COMMAND) -E cmake_progress_start /mnt/dev/vulkan/mastering-graphics-programming/triangle/CMakeFiles 8
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 CMakeFiles/Triangle.dir/all
 	$(CMAKE_COMMAND) -E cmake_progress_start /mnt/dev/vulkan/mastering-graphics-programming/triangle/CMakeFiles 0
 .PHONY : CMakeFiles/Triangle.dir/rule
