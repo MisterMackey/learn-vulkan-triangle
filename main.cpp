@@ -17,6 +17,7 @@
 #include "p_device.hpp"
 #include "debugshit.hpp"
 #include "presentation.hpp"
+#include "shaderLoading.hpp"
 
 const int windowHeight = 800;
 const int windowWidth = 600;
@@ -166,7 +167,17 @@ class TriangleApp{
 
 	void createGraphicsPipeline(void)
 	{
+		auto vertexShaderCode = readShaderFile("shaders/shader.vert.spv");
+		auto fragShaderCode = readShaderFile("shaders/shader.frag.spv");
 
+
+		VkShaderModule vertexShaderModule = createShaderModule(vertexShaderCode, device);
+		VkShaderModule fragShaderModule = createShaderModule(fragShaderCode, device);
+
+
+		//wut?
+		vkDestroyShaderModule(device, fragShaderModule, nullptr);
+		vkDestroyShaderModule(device, vertexShaderModule, nullptr);
 	}
 };
 
