@@ -43,6 +43,7 @@ class TriangleApp{
 	VkQueue presentQueue;
 	trianglePresentation::swapchainInformation swapchainInfo;
 	std::vector<VkImageView> swapChainImageViews;
+	VkPipelineLayout pipelineLayout;
 
 	void initWindow(void)
 	{
@@ -75,6 +76,7 @@ class TriangleApp{
 	}
 	void  cleanup(void)
 	{
+		vkDestroyPipelineLayout(device, pipelineLayout, nullptr);
 		for (auto imageView : swapChainImageViews){
 			vkDestroyImageView(device, imageView, nullptr);
 		}
@@ -224,6 +226,65 @@ class TriangleApp{
 		viewportCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO;
 		viewportCreateInfo.viewportCount = 1;
 		viewportCreateInfo.scissorCount = 1;
+
+		//rasterizer
+		VkPipelineRasterizationStateCreateInfo rasterCreateInfo{};
+		rasterCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO;
+		rasterCreateInfo.depthClampEnable = VK_FALSE;
+		rasterCreateInfo.rasterizerDiscardEnable = VK_FALSE;
+		rasterCreateInfo.polygonMode = VK_POLYGON_MODE_FILL;
+		rasterCreateInfo.lineWidth = 1.0f;
+		rasterCreateInfo.cullMode = VK_CULL_MODE_BACK_BIT;
+		rasterCreateInfo.frontFace = VK_FRONT_FACE_CLOCKWISE;
+		rasterCreateInfo.depthBiasEnable = VK_FALSE;
+		rasterCreateInfo.depthBiasConstantFactor = 0.0f; //optional
+		rasterCreateInfo.depthBiasClamp = 0.0f; //opt
+		rasterCreateInfo.depthBiasSlopeFactor = 0.0f;
+
+		//multisampling
+		//basically its turned off for now
+		VkPipelineMultisampleStateCreateInfo multisampingCreateInfo{};
+		multisampingCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO;
+		multisampingCreateInfo.sampleShadingEnable = VK_FALSE;
+		multisampingCreateInfo.rasterizationSamples = VK_SAMPLE_COUNT_1_BIT;
+		multisampingCreateInfo.minSampleShading = 1.0f;
+		multisampingCreateInfo.pSampleMask = nullptr;
+		multisampingCreateInfo.alphaToCoverageEnable = VK_FALSE;
+		multisampingCreateInfo.alphaToOneEnable = VK_FALSE;
+
+		//colorblending
+		VkPipelineColorBlendAttachmentState colorBlendAttachment{};
+		colorBlendAttachment.colorWriteMask = VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT | VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT;
+		colorBlendAttachment.blendEnable = VK_FALSE;
+		colorBlendAttachment.srcColorBlendFactor = VK_BLEND_FACTOR_ONE;
+		colorBlendAttachment.dstColorBlendFactor = VK_BLEND_FACTOR_ZERO;
+		colorBlendAttachment.colorBlendOp = VK_BLEND_OP_ADD;
+		colorBlendAttachment.srcAlphaBlendFactor = VK_BLEND_FACTOR_ONE;
+		colorBlendAttachment.dstAlphaBlendFactor = VK_BLEND_FACTOR_ZERO;
+		colorBlendAttachment.alphaBlendOp = VK_BLEND_OP_ADD;
+
+		VkPipelineColorBlendStateCreateInfo colorBlendGlobal{};
+		colorBlendGlobal.sType = VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO;
+		colorBlendGlobal.logicOpEnable = VK_FALSE;
+		colorBlendGlobal.logicOp = VK_LOGIC_OP_COPY;
+		colorBlendGlobal.attachmentCount = 1;
+		colorBlendGlobal.pAttachments = &colorBlendAttachment;
+		colorBlendGlobal.blendConstants[0] = 0.0f;
+		colorBlendGlobal.blendConstants[1] = 0.0f;
+		colorBlendGlobal.blendConstants[2] = 0.0f;
+		colorBlendGlobal.blendConstants[3] = 0.0f;
+
+		//laayout
+		VkPipelineLayoutCreateInfo pipelineLayoutCreateInfo;
+		pipelineLayoutCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
+		pipelineLayoutCreateInfo.setLayoutCount = 0;
+		pipelineLayoutCreateInfo.pSetLayouts = nullptr;
+		pipelineLayoutCreateInfo.pushConstantRangeCount = 0;
+		pipelineLayoutCreateInfo.pPushConstantRanges = nullptr;
+
+		if (vkCreatePipelineLayout(device, &pipelineLayoutCreateInfo, nullptr, &pipelineLayout) != VK_SUCCESS){
+			throw std::runtime_error("Failed to make pipeline layout");
+		}
 
 		//wut?
 		vkDestroyShaderModule(device, fragShaderModule, nullptr);
