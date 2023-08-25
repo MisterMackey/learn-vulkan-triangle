@@ -45,6 +45,7 @@ class TriangleApp{
 	std::vector<VkImageView> swapChainImageViews;
 	VkRenderPass renderPass;
 	VkPipelineLayout pipelineLayout;
+	VkPipeline graphicsPipeline;
 
 	void initWindow(void)
 	{
@@ -78,6 +79,7 @@ class TriangleApp{
 	}
 	void  cleanup(void)
 	{
+		vkDestroyPipeline(device, graphicsPipeline, nullptr);
 		vkDestroyPipelineLayout(device, pipelineLayout, nullptr);
 		vkDestroyRenderPass(device, renderPass, nullptr);
 		for (auto imageView : swapChainImageViews){
@@ -285,9 +287,34 @@ class TriangleApp{
 		pipelineLayoutCreateInfo.pushConstantRangeCount = 0;
 		pipelineLayoutCreateInfo.pPushConstantRanges = nullptr;
 		pipelineLayoutCreateInfo.pNext = nullptr; //based on validation layer output
+		pipelineLayoutCreateInfo.flags = VK_PIPELINE_LAYOUT_CREATE_INDEPENDENT_SETS_BIT_EXT;
 
 		if (vkCreatePipelineLayout(device, &pipelineLayoutCreateInfo, nullptr, &pipelineLayout) != VK_SUCCESS){
 			throw std::runtime_error("Failed to make pipeline layout");
+		}
+
+		//FINALLY
+		VkGraphicsPipelineCreateInfo pipelineInfo{};
+		pipelineInfo.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
+		pipelineInfo.stageCount = 2;
+		pipelineInfo.pStages = shaderStages;
+		pipelineInfo.pVertexInputState = &vertexInputCreateInfo;
+		pipelineInfo.pInputAssemblyState = &inputAssemblyCreateInfo;
+		pipelineInfo.pViewportState = &viewportCreateInfo;
+		pipelineInfo.pRasterizationState = &rasterCreateInfo;
+		pipelineInfo.pMultisampleState = &multisampingCreateInfo;
+		pipelineInfo.pDepthStencilState = nullptr; //optiona
+		pipelineInfo.pColorBlendState = &colorBlendGlobal;
+		pipelineInfo.pDynamicState = &dynamicStateCreateInfo;
+		pipelineInfo.layout = pipelineLayout;
+		pipelineInfo.renderPass = renderPass;
+		pipelineInfo.subpass = 0;
+		pipelineInfo.basePipelineHandle = VK_NULL_HANDLE;
+		pipelineInfo.basePipelineIndex = -1;
+
+		if (vkCreateGraphicsPipelines(device, VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &graphicsPipeline)
+			!= VK_SUCCESS) {
+			throw std::runtime_error("failed to create graphics pipeline");
 		}
 
 		//wut?
