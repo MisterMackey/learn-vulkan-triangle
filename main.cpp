@@ -50,6 +50,10 @@ class TriangleApp{
 	VkCommandPool commandPool;
 	VkCommandBuffer commandBuffer;
 
+	VkSemaphore imageAvailableSemaphore;
+	VkSemaphore renderFinishedSemaphore;
+	VkFence inFlightFence;
+
 	void initWindow(void)
 	{
 		glfwInit();
@@ -75,16 +79,21 @@ class TriangleApp{
 		createFramebuffers();
 		createCommandPool();
 		createCommandBuffer();
+		createSyncObject();
 
 	}
 	void mainLoop(void)
 	{
 		while (!glfwWindowShouldClose(window)){
 			glfwPollEvents();
+			drawFrame();
 		}
 	}
 	void cleanup(void)
 	{
+		vkDestroySemaphore(device, imageAvailableSemaphore, nullptr);
+		vkDestroySemaphore(device, renderFinishedSemaphore, nullptr);
+		vkDestroyFence(device, inFlightFence, nullptr);
 		vkDestroyCommandPool(device, commandPool, nullptr);
 		for (auto fb : swapChainFramebuffers){
 			vkDestroyFramebuffer(device, fb, nullptr);
@@ -453,6 +462,24 @@ class TriangleApp{
 		if (vkEndCommandBuffer(buffer) != VK_SUCCESS){
 			throw std::runtime_error("failed to record command buffer");
 		}
+	}
+
+	void createSyncObject(void)
+	{
+		VkSemaphoreCreateInfo semaphoreInfo {.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO};
+		VkFenceCreateInfo fenceInfo{.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO};
+
+		auto s1 = vkCreateSemaphore(device, &semaphoreInfo, nullptr, &imageAvailableSemaphore);
+		auto s2 = vkCreateSemaphore(device, &semaphoreInfo, nullptr, &renderFinishedSemaphore);
+		auto s3 = vkCreateFence(device, &fenceInfo, nullptr, &inFlightFence);
+		if (s1 != VK_SUCCESS || s2 != VK_SUCCESS || s3 != VK_SUCCESS){
+			throw std::runtime_error("failed to create sync objects");
+		}
+	}
+
+	void drawFrame(void)
+	{
+
 	}
 };
 
