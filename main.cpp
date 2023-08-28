@@ -3,27 +3,29 @@
 #include <exception>
 #include <vulkan/vk_platform.h>
 #include <vulkan/vulkan_core.h>
-//below define and include tells the included header to also include vulkan deps
+// below define and include tells the included header to also include vulkan deps
 #define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
 
+#include "debugshit.hpp"
+#include "p_device.hpp"
+#include "presentation.hpp"
+#include "requirement.hpp"
+#include "shaderLoading.hpp"
+#include <algorithm>
+#include <cstdlib>
 #include <iostream>
 #include <stdexcept>
-#include <cstdlib>
-#include <vector>
-#include <algorithm>
 #include <string.h>
-#include "requirement.hpp"
-#include "p_device.hpp"
-#include "debugshit.hpp"
-#include "presentation.hpp"
-#include "shaderLoading.hpp"
+#include <vector>
 
+const int MAX_FRAMES_IN_FLIGHT = 2;
 const int windowHeight = 800;
 const int windowWidth = 600;
 
-class TriangleApp{
-	public:
+class TriangleApp
+{
+      public:
 	void run()
 	{
 		initWindow();
@@ -32,10 +34,10 @@ class TriangleApp{
 		cleanup();
 	}
 
-	private:
+      private:
 	GLFWwindow *window;
 	VkInstance vkInstance;
-	VkDevice device; //logical device
+	VkDevice device; // logical device
 	VkDebugUtilsMessengerEXT debugMessenger;
 	VkPhysicalDevice physicalDevice = VK_NULL_HANDLE;
 	VkSurfaceKHR surface;
@@ -48,11 +50,12 @@ class TriangleApp{
 	VkPipelineLayout pipelineLayout;
 	VkPipeline graphicsPipeline;
 	VkCommandPool commandPool;
-	VkCommandBuffer commandBuffer;
+	uint32_t currentFrame = 0;
 
-	VkSemaphore imageAvailableSemaphore;
-	VkSemaphore renderFinishedSemaphore;
-	VkFence inFlightFence;
+	std::vector<VkCommandBuffer> commandBuffers;
+	std::vector<VkSemaphore> imageAvailableSemaphores;
+	std::vector<VkSemaphore> renderFinishedSemaphores;
+	std::vector<VkFence> inFlightFences;
 
 	void initWindow(void)
 	{
@@ -72,19 +75,18 @@ class TriangleApp{
 		p_device::createLogicalDevice(&device, physicalDevice, &graphicsQueue, &presentQueue, surface);
 		trianglePresentation::createSwapchain(physicalDevice, device, surface, window, swapchainInfo);
 		createImageViews();
-		//im giving up on splitting all this shit up into files. I don't know enough to properly factor this shit anyway.
-		//so im just following the tutorial now
+		// im giving up on splitting all this shit up into files. I don't know enough to properly factor this shit anyway.
+		// so im just following the tutorial now
 		createRenderPass();
 		createGraphicsPipeline();
 		createFramebuffers();
 		createCommandPool();
-		createCommandBuffer();
-		createSyncObject();
-
+		createCommandBuffers();
+		createSyncObjects();
 	}
 	void mainLoop(void)
 	{
-		while (!glfwWindowShouldClose(window)){
+		while (!glfwWindowShouldClose(window)) {
 			glfwPollEvents();
 			drawFrame();
 		}
@@ -92,17 +94,20 @@ class TriangleApp{
 	}
 	void cleanup(void)
 	{
-		vkDestroySemaphore(device, imageAvailableSemaphore, nullptr);
-		vkDestroySemaphore(device, renderFinishedSemaphore, nullptr);
-		vkDestroyFence(device, inFlightFence, nullptr);
+		for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; ++i) {
+
+			vkDestroySemaphore(device, imageAvailableSemaphores[i], nullptr);
+			vkDestroySemaphore(device, renderFinishedSemaphores[i], nullptr);
+			vkDestroyFence(device, inFlightFences[i], nullptr);
+		}
 		vkDestroyCommandPool(device, commandPool, nullptr);
-		for (auto fb : swapChainFramebuffers){
+		for (auto fb : swapChainFramebuffers) {
 			vkDestroyFramebuffer(device, fb, nullptr);
 		}
 		vkDestroyPipeline(device, graphicsPipeline, nullptr);
 		vkDestroyPipelineLayout(device, pipelineLayout, nullptr);
 		vkDestroyRenderPass(device, renderPass, nullptr);
-		for (auto imageView : swapChainImageViews){
+		for (auto imageView : swapChainImageViews) {
 			vkDestroyImageView(device, imageView, nullptr);
 		}
 		vkDestroySwapchainKHR(device, swapchainInfo.swapchain, nullptr);
@@ -122,14 +127,13 @@ class TriangleApp{
 
 		if (debugshit::CreateDebugUtilsMessengerEXT(vkInstance, nullptr, &debugMessenger) != VK_SUCCESS)
 			throw std::runtime_error("Failed to set up debug messenger");
-
 	}
 	void createInstance(void)
 	{
-		if (enableValidationLayers && !trequirement::checkValidationLayerSupport()){
+		if (enableValidationLayers && !trequirement::checkValidationLayerSupport()) {
 			throw std::runtime_error("validation layer fucky wucky");
 		}
-		VkApplicationInfo appInfo {};
+		VkApplicationInfo appInfo{};
 		appInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
 		appInfo.pApplicationName = "Hello Triangle";
 		appInfo.applicationVersion = VK_MAKE_VERSION(0, 1, 0);
@@ -137,8 +141,8 @@ class TriangleApp{
 		appInfo.engineVersion = VK_MAKE_VERSION(0, 0, 0);
 		appInfo.apiVersion = VK_API_VERSION_1_0;
 
-		VkInstanceCreateInfo createInfo {};
-		//basic info
+		VkInstanceCreateInfo createInfo{};
+		// basic info
 		createInfo.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
 		createInfo.pApplicationInfo = &appInfo;
 
@@ -149,12 +153,12 @@ class TriangleApp{
 		createInfo.enabledExtensionCount = static_cast<uint32_t>(required_extensions.size());
 		createInfo.ppEnabledExtensionNames = required_extensions.data();
 
-		//which global validation layers to enable
-		//this should sit in trequirement now
+		// which global validation layers to enable
+		// this should sit in trequirement now
 
-		//this variable is defined outside the if block to make sure its not destroyed before the vkcreateinstance call
+		// this variable is defined outside the if block to make sure its not destroyed before the vkcreateinstance call
 		VkDebugUtilsMessengerCreateInfoEXT debugCreateInfo{};
-		if (enableValidationLayers){
+		if (enableValidationLayers) {
 			createInfo.enabledLayerCount = static_cast<uint32_t>(trequirement::validationLayers.size());
 			createInfo.ppEnabledLayerNames = trequirement::validationLayers.data();
 			debugshit::populateDebugMessengerStruct(debugCreateInfo);
@@ -171,7 +175,7 @@ class TriangleApp{
 	void createImageViews(void)
 	{
 		swapChainImageViews.resize(swapchainInfo.swapchainImages.size());
-		for (size_t i =0; i< swapchainInfo.swapchainImages.size(); ++i) {
+		for (size_t i = 0; i < swapchainInfo.swapchainImages.size(); ++i) {
 			VkImageViewCreateInfo createInfo{};
 			createInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
 			createInfo.image = swapchainInfo.swapchainImages[i];
@@ -186,7 +190,7 @@ class TriangleApp{
 			createInfo.subresourceRange.levelCount = 1;
 			createInfo.subresourceRange.baseArrayLayer = 0;
 			createInfo.subresourceRange.layerCount = 1;
-			if (vkCreateImageView(device, &createInfo, nullptr, &swapChainImageViews[i]) != VK_SUCCESS){
+			if (vkCreateImageView(device, &createInfo, nullptr, &swapChainImageViews[i]) != VK_SUCCESS) {
 				throw std::runtime_error("Failed to create an image view");
 			}
 		}
@@ -197,24 +201,23 @@ class TriangleApp{
 		auto vertexShaderCode = readShaderFile("shaders/shader.vert.spv");
 		auto fragShaderCode = readShaderFile("shaders/shader.frag.spv");
 
-
 		VkShaderModule vertexShaderModule = createShaderModule(vertexShaderCode, device);
 		VkShaderModule fragShaderModule = createShaderModule(fragShaderCode, device);
 
-		//possible target to move to other file
-		VkPipelineShaderStageCreateInfo vertShaderStageInfo {};
+		// possible target to move to other file
+		VkPipelineShaderStageCreateInfo vertShaderStageInfo{};
 		vertShaderStageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
 		vertShaderStageInfo.stage = VK_SHADER_STAGE_VERTEX_BIT;
 		vertShaderStageInfo.module = vertexShaderModule;
 		vertShaderStageInfo.pName = "main";
-		VkPipelineShaderStageCreateInfo fragShaderStageInfo {};
+		VkPipelineShaderStageCreateInfo fragShaderStageInfo{};
 		fragShaderStageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
 		fragShaderStageInfo.stage = VK_SHADER_STAGE_FRAGMENT_BIT;
 		fragShaderStageInfo.module = fragShaderModule;
 		fragShaderStageInfo.pName = "main";
 
 		VkPipelineShaderStageCreateInfo shaderStages[] = {vertShaderStageInfo, fragShaderStageInfo};
-		VkPipelineVertexInputStateCreateInfo vertexInputCreateInfo {};
+		VkPipelineVertexInputStateCreateInfo vertexInputCreateInfo{};
 		vertexInputCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
 		vertexInputCreateInfo.vertexBindingDescriptionCount = 0;
 		vertexInputCreateInfo.pVertexBindingDescriptions = nullptr;
@@ -235,13 +238,10 @@ class TriangleApp{
 		viewport.maxDepth = 1.0f;
 
 		VkRect2D scissor{};
-		scissor.offset = {0,0};
+		scissor.offset = {0, 0};
 		scissor.extent = swapchainInfo.swapchainExtent;
 
-		std::vector<VkDynamicState> dynamicStates = {
-			VK_DYNAMIC_STATE_VIEWPORT,
-			VK_DYNAMIC_STATE_SCISSOR
-		};
+		std::vector<VkDynamicState> dynamicStates = {VK_DYNAMIC_STATE_VIEWPORT, VK_DYNAMIC_STATE_SCISSOR};
 		VkPipelineDynamicStateCreateInfo dynamicStateCreateInfo{};
 		dynamicStateCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO;
 		dynamicStateCreateInfo.dynamicStateCount = static_cast<uint32_t>(dynamicStates.size());
@@ -252,7 +252,7 @@ class TriangleApp{
 		viewportCreateInfo.viewportCount = 1;
 		viewportCreateInfo.scissorCount = 1;
 
-		//rasterizer
+		// rasterizer
 		VkPipelineRasterizationStateCreateInfo rasterCreateInfo{};
 		rasterCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO;
 		rasterCreateInfo.depthClampEnable = VK_FALSE;
@@ -262,12 +262,12 @@ class TriangleApp{
 		rasterCreateInfo.cullMode = VK_CULL_MODE_BACK_BIT;
 		rasterCreateInfo.frontFace = VK_FRONT_FACE_CLOCKWISE;
 		rasterCreateInfo.depthBiasEnable = VK_FALSE;
-		rasterCreateInfo.depthBiasConstantFactor = 0.0f; //optional
-		rasterCreateInfo.depthBiasClamp = 0.0f; //opt
+		rasterCreateInfo.depthBiasConstantFactor = 0.0f; // optional
+		rasterCreateInfo.depthBiasClamp = 0.0f;		 // opt
 		rasterCreateInfo.depthBiasSlopeFactor = 0.0f;
 
-		//multisampling
-		//basically its turned off for now
+		// multisampling
+		// basically its turned off for now
 		VkPipelineMultisampleStateCreateInfo multisampingCreateInfo{};
 		multisampingCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO;
 		multisampingCreateInfo.sampleShadingEnable = VK_FALSE;
@@ -277,7 +277,7 @@ class TriangleApp{
 		multisampingCreateInfo.alphaToCoverageEnable = VK_FALSE;
 		multisampingCreateInfo.alphaToOneEnable = VK_FALSE;
 
-		//colorblending
+		// colorblending
 		VkPipelineColorBlendAttachmentState colorBlendAttachment{};
 		colorBlendAttachment.colorWriteMask = VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT | VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT;
 		colorBlendAttachment.blendEnable = VK_FALSE;
@@ -299,21 +299,21 @@ class TriangleApp{
 		colorBlendGlobal.blendConstants[2] = 0.0f;
 		colorBlendGlobal.blendConstants[3] = 0.0f;
 
-		//laayout
+		// laayout
 		VkPipelineLayoutCreateInfo pipelineLayoutCreateInfo;
 		pipelineLayoutCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
 		pipelineLayoutCreateInfo.setLayoutCount = 0;
 		pipelineLayoutCreateInfo.pSetLayouts = nullptr;
 		pipelineLayoutCreateInfo.pushConstantRangeCount = 0;
 		pipelineLayoutCreateInfo.pPushConstantRanges = nullptr;
-		pipelineLayoutCreateInfo.pNext = nullptr; //based on validation layer output
+		pipelineLayoutCreateInfo.pNext = nullptr; // based on validation layer output
 		pipelineLayoutCreateInfo.flags = VK_PIPELINE_LAYOUT_CREATE_INDEPENDENT_SETS_BIT_EXT;
 
-		if (vkCreatePipelineLayout(device, &pipelineLayoutCreateInfo, nullptr, &pipelineLayout) != VK_SUCCESS){
+		if (vkCreatePipelineLayout(device, &pipelineLayoutCreateInfo, nullptr, &pipelineLayout) != VK_SUCCESS) {
 			throw std::runtime_error("Failed to make pipeline layout");
 		}
 
-		//FINALLY
+		// FINALLY
 		VkGraphicsPipelineCreateInfo pipelineInfo{};
 		pipelineInfo.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
 		pipelineInfo.stageCount = 2;
@@ -323,7 +323,7 @@ class TriangleApp{
 		pipelineInfo.pViewportState = &viewportCreateInfo;
 		pipelineInfo.pRasterizationState = &rasterCreateInfo;
 		pipelineInfo.pMultisampleState = &multisampingCreateInfo;
-		pipelineInfo.pDepthStencilState = nullptr; //optiona
+		pipelineInfo.pDepthStencilState = nullptr; // optiona
 		pipelineInfo.pColorBlendState = &colorBlendGlobal;
 		pipelineInfo.pDynamicState = &dynamicStateCreateInfo;
 		pipelineInfo.layout = pipelineLayout;
@@ -332,12 +332,11 @@ class TriangleApp{
 		pipelineInfo.basePipelineHandle = VK_NULL_HANDLE;
 		pipelineInfo.basePipelineIndex = -1;
 
-		if (vkCreateGraphicsPipelines(device, VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &graphicsPipeline)
-			!= VK_SUCCESS) {
+		if (vkCreateGraphicsPipelines(device, VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &graphicsPipeline) != VK_SUCCESS) {
 			throw std::runtime_error("failed to create graphics pipeline");
 		}
 
-		//wut?
+		// wut?
 		vkDestroyShaderModule(device, fragShaderModule, nullptr);
 		vkDestroyShaderModule(device, vertexShaderModule, nullptr);
 	}
@@ -358,7 +357,7 @@ class TriangleApp{
 		colorAttachmentRef.attachment = 0;
 		colorAttachmentRef.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
 
-		VkSubpassDescription subpass {};
+		VkSubpassDescription subpass{};
 		subpass.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
 		subpass.colorAttachmentCount = 1;
 		subpass.pColorAttachments = &colorAttachmentRef;
@@ -371,7 +370,7 @@ class TriangleApp{
 		dependency.dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
 		dependency.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
 
-		VkRenderPassCreateInfo renderPassInfo {};
+		VkRenderPassCreateInfo renderPassInfo{};
 		renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
 		renderPassInfo.attachmentCount = 1;
 		renderPassInfo.pAttachments = &colorAttachment;
@@ -380,7 +379,7 @@ class TriangleApp{
 		renderPassInfo.dependencyCount = 1;
 		renderPassInfo.pDependencies = &dependency;
 
-		if (vkCreateRenderPass(device, &renderPassInfo, nullptr, &renderPass) != VK_SUCCESS){
+		if (vkCreateRenderPass(device, &renderPassInfo, nullptr, &renderPass) != VK_SUCCESS) {
 			throw std::runtime_error("Failed to create render pass");
 		}
 	}
@@ -388,7 +387,7 @@ class TriangleApp{
 	void createFramebuffers(void)
 	{
 		swapChainFramebuffers.resize(swapChainImageViews.size());
-		for (size_t i = 0; i < swapChainImageViews.size(); ++i){
+		for (size_t i = 0; i < swapChainImageViews.size(); ++i) {
 			VkImageView attachments[] = {swapChainImageViews[i]};
 			VkFramebufferCreateInfo framebufferInfo{};
 			framebufferInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
@@ -399,7 +398,7 @@ class TriangleApp{
 			framebufferInfo.height = swapchainInfo.swapchainExtent.height;
 			framebufferInfo.layers = 1;
 
-			if (vkCreateFramebuffer(device, &framebufferInfo, nullptr, &swapChainFramebuffers[i]) != VK_SUCCESS){
+			if (vkCreateFramebuffer(device, &framebufferInfo, nullptr, &swapChainFramebuffers[i]) != VK_SUCCESS) {
 				throw std::runtime_error("FUCKY WUCKY when make a framebuffer");
 			}
 		}
@@ -412,20 +411,21 @@ class TriangleApp{
 		poolInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
 		poolInfo.flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
 		poolInfo.queueFamilyIndex = queueFamilyIndices.graphicsFamily.value();
-		if (vkCreateCommandPool(device, &poolInfo, nullptr, &commandPool) != VK_SUCCESS){
+		if (vkCreateCommandPool(device, &poolInfo, nullptr, &commandPool) != VK_SUCCESS) {
 			throw std::runtime_error("failed to create command pool");
 		}
 	}
 
-	void createCommandBuffer(void)
+	void createCommandBuffers(void)
 	{
+		commandBuffers.resize(MAX_FRAMES_IN_FLIGHT);
 		VkCommandBufferAllocateInfo allocInfo{};
 		allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
 		allocInfo.commandPool = commandPool;
 		allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-		allocInfo.commandBufferCount = 1;
+		allocInfo.commandBufferCount = (uint32_t)MAX_FRAMES_IN_FLIGHT;
 
-		if (vkAllocateCommandBuffers(device, &allocInfo, &commandBuffer) != VK_SUCCESS) {
+		if (vkAllocateCommandBuffers(device, &allocInfo, commandBuffers.data()) != VK_SUCCESS) {
 			throw std::runtime_error("failed to allocate command buffers");
 		}
 	}
@@ -438,14 +438,15 @@ class TriangleApp{
 		beginInfo.pInheritanceInfo = nullptr;
 
 		if (vkBeginCommandBuffer(buffer, &beginInfo) != VK_SUCCESS) {
-			throw std::runtime_error("are we really going to be throwing exceptions in functions like this?, failed to begin recording command buffer");
+			throw std::runtime_error(
+			    "are we really going to be throwing exceptions in functions like this?, failed to begin recording command buffer");
 		}
 
 		VkRenderPassBeginInfo renderPassInfo{};
 		renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
 		renderPassInfo.renderPass = renderPass;
 		renderPassInfo.framebuffer = swapChainFramebuffers[imageIndex];
-		renderPassInfo.renderArea.offset = {0,0};
+		renderPassInfo.renderArea.offset = {0, 0};
 		renderPassInfo.renderArea.extent = swapchainInfo.swapchainExtent;
 		VkClearValue clearColour = {{{0.0f, 0.0f, 0.0f, 1.0f}}};
 		renderPassInfo.clearValueCount = 1;
@@ -454,7 +455,7 @@ class TriangleApp{
 
 		vkCmdBindPipeline(buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, graphicsPipeline);
 
-		//scissor and viewport size are dynamic so set them now
+		// scissor and viewport size are dynamic so set them now
 		VkViewport viewport{};
 		viewport.x = 0.0f;
 		viewport.y = 0.0f;
@@ -464,55 +465,62 @@ class TriangleApp{
 		viewport.maxDepth = 1.0f;
 		vkCmdSetViewport(buffer, 0, 1, &viewport);
 		VkRect2D scissor{};
-		scissor.offset = {0,0};
+		scissor.offset = {0, 0};
 		scissor.extent = swapchainInfo.swapchainExtent;
 		vkCmdSetScissor(buffer, 0, 1, &scissor);
 
 		vkCmdDraw(buffer, 3, 1, 0, 0);
 		vkCmdEndRenderPass(buffer);
-		if (vkEndCommandBuffer(buffer) != VK_SUCCESS){
+		if (vkEndCommandBuffer(buffer) != VK_SUCCESS) {
 			throw std::runtime_error("failed to record command buffer");
 		}
 	}
 
-	void createSyncObject(void)
+	void createSyncObjects(void)
 	{
-		VkSemaphoreCreateInfo semaphoreInfo {.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO};
+		imageAvailableSemaphores.resize(MAX_FRAMES_IN_FLIGHT);
+		renderFinishedSemaphores.resize(MAX_FRAMES_IN_FLIGHT);
+		inFlightFences.resize(MAX_FRAMES_IN_FLIGHT);
+
+		VkSemaphoreCreateInfo semaphoreInfo{.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO};
 		VkFenceCreateInfo fenceInfo{.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO};
 		fenceInfo.flags = VK_FENCE_CREATE_SIGNALED_BIT;
 
-		auto s1 = vkCreateSemaphore(device, &semaphoreInfo, nullptr, &imageAvailableSemaphore);
-		auto s2 = vkCreateSemaphore(device, &semaphoreInfo, nullptr, &renderFinishedSemaphore);
-		auto s3 = vkCreateFence(device, &fenceInfo, nullptr, &inFlightFence);
-		if (s1 != VK_SUCCESS || s2 != VK_SUCCESS || s3 != VK_SUCCESS){
-			throw std::runtime_error("failed to create sync objects");
+		for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; ++i) {
+
+			auto s1 = vkCreateSemaphore(device, &semaphoreInfo, nullptr, &imageAvailableSemaphores[i]);
+			auto s2 = vkCreateSemaphore(device, &semaphoreInfo, nullptr, &renderFinishedSemaphores[i]);
+			auto s3 = vkCreateFence(device, &fenceInfo, nullptr, &inFlightFences[i]);
+			if (s1 != VK_SUCCESS || s2 != VK_SUCCESS || s3 != VK_SUCCESS) {
+				throw std::runtime_error("failed to create sync objects");
+			}
 		}
 	}
 
 	void drawFrame(void)
 	{
-		vkWaitForFences(device, 1, &inFlightFence, VK_TRUE, UINT64_MAX);
-		vkResetFences(device, 1, &inFlightFence);
+		vkWaitForFences(device, 1, &inFlightFences[currentFrame], VK_TRUE, UINT64_MAX);
+		vkResetFences(device, 1, &inFlightFences[currentFrame]);
 		uint32_t imageIndex;
-		vkAcquireNextImageKHR(device, swapchainInfo.swapchain, UINT64_MAX, imageAvailableSemaphore, VK_NULL_HANDLE, &imageIndex);
-		vkResetCommandBuffer(commandBuffer, 0);
-		recordCommandBuffer(commandBuffer, imageIndex);
+		vkAcquireNextImageKHR(device, swapchainInfo.swapchain, UINT64_MAX, imageAvailableSemaphores[currentFrame], VK_NULL_HANDLE, &imageIndex);
+		vkResetCommandBuffer(commandBuffers[currentFrame], 0);
+		recordCommandBuffer(commandBuffers[currentFrame], imageIndex);
 
 		VkSubmitInfo submitInfo{};
 		submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
-		VkSemaphore waitSemaphores[] = {imageAvailableSemaphore};
+		VkSemaphore waitSemaphores[] = {imageAvailableSemaphores[currentFrame]};
 		VkPipelineStageFlags waitStages[] = {VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT};
 		submitInfo.waitSemaphoreCount = 1;
 		submitInfo.pWaitSemaphores = waitSemaphores;
 		submitInfo.pWaitDstStageMask = waitStages;
 		submitInfo.commandBufferCount = 1;
-		submitInfo.pCommandBuffers = &commandBuffer;
+		submitInfo.pCommandBuffers = &commandBuffers[currentFrame];
 
-		VkSemaphore signalSemaphores[] = {renderFinishedSemaphore};
+		VkSemaphore signalSemaphores[] = {renderFinishedSemaphores[currentFrame]};
 		submitInfo.signalSemaphoreCount = 1;
 		submitInfo.pSignalSemaphores = signalSemaphores;
 
-		if (vkQueueSubmit(graphicsQueue, 1, &submitInfo, inFlightFence) != VK_SUCCESS){
+		if (vkQueueSubmit(graphicsQueue, 1, &submitInfo, inFlightFences[currentFrame]) != VK_SUCCESS) {
 			throw std::runtime_error("failed to submit draw command buffer");
 		}
 
@@ -527,8 +535,9 @@ class TriangleApp{
 		presentInfo.pImageIndices = &imageIndex;
 		presentInfo.pResults = nullptr;
 
-		//omg finally
+		// omg finally
 		vkQueuePresentKHR(presentQueue, &presentInfo);
+		currentFrame = (currentFrame + 1) % MAX_FRAMES_IN_FLIGHT;
 	}
 };
 
