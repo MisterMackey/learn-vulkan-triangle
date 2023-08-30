@@ -558,6 +558,14 @@ class TriangleApp
 
 	void recreateSwapChain()
 	{
+		int width = 0;
+		int height = 0;
+		glfwGetFramebufferSize(window, &width, &height);
+		while (width == 0 || height == 0){
+			//following tutorial but shouldnt the order be reversed?
+			glfwGetFramebufferSize(window, &width, &height);
+			glfwWaitEvents();
+		}
 		vkDeviceWaitIdle(device);
 
 		cleanupSwapChain();
