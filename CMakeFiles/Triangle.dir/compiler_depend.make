@@ -194,6 +194,7 @@ CMakeFiles/Triangle.dir/debugshit.cpp.o: debugshit.cpp \
   /usr/include/vk_video/vulkan_video_codec_h264std_decode.h \
   /usr/include/vk_video/vulkan_video_codec_h265std.h \
   /usr/include/vk_video/vulkan_video_codec_h265std_decode.h \
+  /usr/include/vk_video/vulkan_video_codecs_common.h \
   /usr/include/vulkan/vk_platform.h \
   /usr/include/vulkan/vulkan.h \
   /usr/include/vulkan/vulkan_core.h \
@@ -423,6 +424,7 @@ CMakeFiles/Triangle.dir/main.cpp.o: main.cpp \
   /usr/include/vk_video/vulkan_video_codec_h264std_decode.h \
   /usr/include/vk_video/vulkan_video_codec_h265std.h \
   /usr/include/vk_video/vulkan_video_codec_h265std_decode.h \
+  /usr/include/vk_video/vulkan_video_codecs_common.h \
   /usr/include/vulkan/vk_platform.h \
   /usr/include/vulkan/vulkan.h \
   /usr/include/vulkan/vulkan_core.h \
@@ -601,6 +603,7 @@ CMakeFiles/Triangle.dir/p_device.cpp.o: p_device.cpp \
   /usr/include/vk_video/vulkan_video_codec_h264std_decode.h \
   /usr/include/vk_video/vulkan_video_codec_h265std.h \
   /usr/include/vk_video/vulkan_video_codec_h265std_decode.h \
+  /usr/include/vk_video/vulkan_video_codecs_common.h \
   /usr/include/vulkan/vk_platform.h \
   /usr/include/vulkan/vulkan.h \
   /usr/include/vulkan/vulkan_core.h \
@@ -781,6 +784,7 @@ CMakeFiles/Triangle.dir/presentation.cpp.o: presentation.cpp \
   /usr/include/vk_video/vulkan_video_codec_h264std_decode.h \
   /usr/include/vk_video/vulkan_video_codec_h265std.h \
   /usr/include/vk_video/vulkan_video_codec_h265std_decode.h \
+  /usr/include/vk_video/vulkan_video_codecs_common.h \
   /usr/include/vulkan/vk_platform.h \
   /usr/include/vulkan/vulkan.h \
   /usr/include/vulkan/vulkan_core.h \
@@ -1001,6 +1005,7 @@ CMakeFiles/Triangle.dir/requirement.cpp.o: requirement.cpp \
   /usr/include/vk_video/vulkan_video_codec_h264std_decode.h \
   /usr/include/vk_video/vulkan_video_codec_h265std.h \
   /usr/include/vk_video/vulkan_video_codec_h265std_decode.h \
+  /usr/include/vk_video/vulkan_video_codecs_common.h \
   /usr/include/vulkan/vk_platform.h \
   /usr/include/vulkan/vulkan.h \
   /usr/include/vulkan/vulkan_core.h \
@@ -1058,6 +1063,8 @@ main.cpp:
 /usr/include/vulkan/vulkan_core.h:
 
 /usr/include/vulkan/vulkan.h:
+
+/usr/include/vk_video/vulkan_video_codecs_common.h:
 
 /usr/include/vk_video/vulkan_video_codec_h265std.h:
 
