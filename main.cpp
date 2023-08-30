@@ -14,14 +14,53 @@
 #include "shaderLoading.hpp"
 #include <algorithm>
 #include <cstdlib>
+#include <glm/glm.hpp>
 #include <iostream>
 #include <stdexcept>
 #include <string.h>
 #include <vector>
+#include <array>
 
 const int MAX_FRAMES_IN_FLIGHT = 2;
 const int windowHeight = 800;
 const int windowWidth = 600;
+
+struct Vertex {
+	glm::vec2 pos;
+	glm::vec3 color;
+
+	static VkVertexInputBindingDescription getBindingDescription()
+	{
+		VkVertexInputBindingDescription bindingDescription{};
+		bindingDescription.binding = 0;
+		bindingDescription.stride = sizeof(Vertex);
+		bindingDescription.inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
+		return bindingDescription;
+	}
+
+	static std::array<VkVertexInputAttributeDescription, 2> getAttributeDescriptions()
+	{
+		std::array<VkVertexInputAttributeDescription, 2> attributedescriptions{};
+		attributedescriptions[0].binding = 0;
+		attributedescriptions[0].location = 0;
+		attributedescriptions[0].format = VK_FORMAT_R32G32_SFLOAT;
+		attributedescriptions[0].offset = offsetof(Vertex, pos);
+
+		attributedescriptions[1].binding = 0;
+		attributedescriptions[1].location = 1;
+		attributedescriptions[1].format = VK_FORMAT_R32G32B32_SFLOAT;
+		attributedescriptions[1].offset = offsetof(Vertex, color);
+		return attributedescriptions;
+	}
+};
+
+// clang-format off
+const std::vector<Vertex> vertices = {
+	{{0.0f, -0.5f}, {1.0f, 0.0f, 0.0f}},
+	{{0.5f, 0.5f}, {0.0f, 1.0f, 0.0f}},
+	{{-0.0f, 0.5f}, {0.0f, 0.0f, 1.0f}}
+};
+// clang-format on
 
 class TriangleApp
 {
@@ -68,9 +107,9 @@ class TriangleApp
 		glfwSetWindowUserPointer(window, this);
 		glfwSetFramebufferSizeCallback(window, framebufferResizeCallback);
 	}
-	static void framebufferResizeCallback(GLFWwindow* window, int width, int height)
+	static void framebufferResizeCallback(GLFWwindow *window, int width, int height)
 	{
-		auto app = reinterpret_cast<TriangleApp*>(glfwGetWindowUserPointer(window));
+		auto app = reinterpret_cast<TriangleApp *>(glfwGetWindowUserPointer(window));
 		app->framebufferResized = true;
 	}
 	void initVulkan(void)
@@ -219,13 +258,15 @@ class TriangleApp
 		fragShaderStageInfo.module = fragShaderModule;
 		fragShaderStageInfo.pName = "main";
 
+		auto bindingDescription = Vertex::getBindingDescription();
+		auto attributeDescriptions = Vertex::getAttributeDescriptions();
 		VkPipelineShaderStageCreateInfo shaderStages[] = {vertShaderStageInfo, fragShaderStageInfo};
 		VkPipelineVertexInputStateCreateInfo vertexInputCreateInfo{};
 		vertexInputCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
-		vertexInputCreateInfo.vertexBindingDescriptionCount = 0;
-		vertexInputCreateInfo.pVertexBindingDescriptions = nullptr;
-		vertexInputCreateInfo.vertexAttributeDescriptionCount = 0;
-		vertexInputCreateInfo.pVertexAttributeDescriptions = nullptr;
+		vertexInputCreateInfo.vertexBindingDescriptionCount = 1;
+		vertexInputCreateInfo.pVertexBindingDescriptions = &bindingDescription;
+		vertexInputCreateInfo.vertexAttributeDescriptionCount = static_cast<uint32_t>(attributeDescriptions.size());
+		vertexInputCreateInfo.pVertexAttributeDescriptions = attributeDescriptions.data();
 
 		VkPipelineInputAssemblyStateCreateInfo inputAssemblyCreateInfo{};
 		inputAssemblyCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
@@ -504,11 +545,12 @@ class TriangleApp
 	{
 		vkWaitForFences(device, 1, &inFlightFences[currentFrame], VK_TRUE, UINT64_MAX);
 		uint32_t imageIndex;
-		VkResult result = vkAcquireNextImageKHR(device, swapchainInfo.swapchain, UINT64_MAX, imageAvailableSemaphores[currentFrame], VK_NULL_HANDLE, &imageIndex);
-		if (result == VK_ERROR_OUT_OF_DATE_KHR){
+		VkResult result =
+		    vkAcquireNextImageKHR(device, swapchainInfo.swapchain, UINT64_MAX, imageAvailableSemaphores[currentFrame], VK_NULL_HANDLE, &imageIndex);
+		if (result == VK_ERROR_OUT_OF_DATE_KHR) {
 			recreateSwapChain();
 			return;
-		} else if (result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR){
+		} else if (result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR) {
 			throw std::runtime_error("Failed to acquire swap chain image");
 		}
 		vkResetFences(device, 1, &inFlightFences[currentFrame]);
@@ -546,11 +588,11 @@ class TriangleApp
 
 		// omg finally
 		result = vkQueuePresentKHR(presentQueue, &presentInfo);
-		//subotimal here = we just recreate the swap chain before the next draw
-		if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR || framebufferResized){
+		// subotimal here = we just recreate the swap chain before the next draw
+		if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR || framebufferResized) {
 			framebufferResized = false;
 			recreateSwapChain();
-		} else if (result != VK_SUCCESS){
+		} else if (result != VK_SUCCESS) {
 			throw std::runtime_error("failed to present swap chain image");
 		}
 		currentFrame = (currentFrame + 1) % MAX_FRAMES_IN_FLIGHT;
@@ -561,8 +603,8 @@ class TriangleApp
 		int width = 0;
 		int height = 0;
 		glfwGetFramebufferSize(window, &width, &height);
-		while (width == 0 || height == 0){
-			//following tutorial but shouldnt the order be reversed?
+		while (width == 0 || height == 0) {
+			// following tutorial but shouldnt the order be reversed?
 			glfwGetFramebufferSize(window, &width, &height);
 			glfwWaitEvents();
 		}
