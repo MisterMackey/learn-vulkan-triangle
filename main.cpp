@@ -13,13 +13,13 @@
 #include "requirement.hpp"
 #include "shaderLoading.hpp"
 #include <algorithm>
+#include <array>
 #include <cstdlib>
 #include <glm/glm.hpp>
 #include <iostream>
 #include <stdexcept>
 #include <string.h>
 #include <vector>
-#include <array>
 
 const int MAX_FRAMES_IN_FLIGHT = 2;
 const int windowHeight = 800;
@@ -58,7 +58,7 @@ struct Vertex {
 const std::vector<Vertex> vertices = {
 	{{0.0f, -0.5f}, {1.0f, 0.0f, 0.0f}},
 	{{0.5f, 0.5f}, {0.0f, 1.0f, 0.0f}},
-	{{-0.0f, 0.5f}, {0.0f, 0.0f, 1.0f}}
+	{{-0.5f, 0.5f}, {0.0f, 0.0f, 1.0f}}
 };
 // clang-format on
 
@@ -90,7 +90,8 @@ class TriangleApp
 	VkPipeline graphicsPipeline;
 	VkCommandPool commandPool;
 	uint32_t currentFrame = 0;
-
+	VkBuffer vertexBuffer;
+	VkDeviceMemory vertexBufferMemory;
 	std::vector<VkCommandBuffer> commandBuffers;
 	std::vector<VkSemaphore> imageAvailableSemaphores;
 	std::vector<VkSemaphore> renderFinishedSemaphores;
@@ -129,6 +130,7 @@ class TriangleApp
 		createGraphicsPipeline();
 		createFramebuffers();
 		createCommandPool();
+		createVertexBuffers();
 		createCommandBuffers();
 		createSyncObjects();
 	}
@@ -150,6 +152,8 @@ class TriangleApp
 		}
 		vkDestroyCommandPool(device, commandPool, nullptr);
 		cleanupSwapChain();
+		vkDestroyBuffer(device, vertexBuffer, nullptr);
+		vkFreeMemory(device, vertexBufferMemory, nullptr);
 		vkDestroyPipeline(device, graphicsPipeline, nullptr);
 		vkDestroyPipelineLayout(device, pipelineLayout, nullptr);
 		vkDestroyRenderPass(device, renderPass, nullptr);
@@ -498,6 +502,9 @@ class TriangleApp
 		vkCmdBeginRenderPass(buffer, &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
 
 		vkCmdBindPipeline(buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, graphicsPipeline);
+		VkBuffer vertexBuffers[] = {vertexBuffer};
+		VkDeviceSize offsets[] = {0};
+		vkCmdBindVertexBuffers(buffer, 0, 1, vertexBuffers, offsets);
 
 		// scissor and viewport size are dynamic so set them now
 		VkViewport viewport{};
@@ -513,7 +520,7 @@ class TriangleApp
 		scissor.extent = swapchainInfo.swapchainExtent;
 		vkCmdSetScissor(buffer, 0, 1, &scissor);
 
-		vkCmdDraw(buffer, 3, 1, 0, 0);
+		vkCmdDraw(buffer, static_cast<uint32_t>(vertices.size()), 1, 0, 0);
 		vkCmdEndRenderPass(buffer);
 		if (vkEndCommandBuffer(buffer) != VK_SUCCESS) {
 			throw std::runtime_error("failed to record command buffer");
@@ -626,6 +633,49 @@ class TriangleApp
 			vkDestroyImageView(device, imageView, nullptr);
 		}
 		vkDestroySwapchainKHR(device, swapchainInfo.swapchain, nullptr);
+	}
+
+	void createVertexBuffers(void)
+	{
+		VkBufferCreateInfo bufferInfo{};
+		bufferInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
+		bufferInfo.size = sizeof(vertices[0]) * vertices.size();
+		bufferInfo.usage = VK_BUFFER_USAGE_VERTEX_BUFFER_BIT;
+		bufferInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
+		if (vkCreateBuffer(device, &bufferInfo, nullptr, &vertexBuffer) != VK_SUCCESS) {
+			throw std::runtime_error("Failed to create vertex buffer");
+		}
+
+		VkMemoryRequirements memRequirements;
+		vkGetBufferMemoryRequirements(device, vertexBuffer, &memRequirements);
+
+		VkMemoryAllocateInfo allocInfo{};
+		allocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
+		allocInfo.allocationSize = memRequirements.size;
+		allocInfo.memoryTypeIndex =
+		    findMemoryType(memRequirements.memoryTypeBits, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
+
+		if (vkAllocateMemory(device, &allocInfo, nullptr, &vertexBufferMemory) != VK_SUCCESS){
+			throw std::runtime_error("Failed to allocate vertex buffer memory");
+		}
+		vkBindBufferMemory(device, vertexBuffer, vertexBufferMemory, 0);
+
+		void* data;
+		vkMapMemory(device, vertexBufferMemory, 0, bufferInfo.size, 0, &data);
+		memcpy(data, vertices.data(), (size_t)bufferInfo.size);
+		vkUnmapMemory(device, vertexBufferMemory);
+	}
+
+	uint32_t findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties)
+	{
+		VkPhysicalDeviceMemoryProperties memProperties;
+		vkGetPhysicalDeviceMemoryProperties(physicalDevice, &memProperties);
+		for (uint32_t i = 0; i < memProperties.memoryTypeCount; ++i) {
+			if ((typeFilter & (1 << i)) && (memProperties.memoryTypes[i].propertyFlags & properties) == properties) {
+				return i;
+			}
+		}
+		throw std::runtime_error("No suitable VRAM found");
 	}
 };
 
