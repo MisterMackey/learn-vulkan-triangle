@@ -3,6 +3,7 @@ project(Triangle)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
+set(CMAKE_BUILD_TYPE Debug)
 
 add_link_options(-lglfw -lvulkan -ldl -lpthread -lX11 -lXxf86vm -lXrandr -lXi)
 
