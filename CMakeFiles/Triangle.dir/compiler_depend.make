@@ -306,6 +306,7 @@ CMakeFiles/Triangle.dir/main.cpp.o: main.cpp \
   /usr/include/c++/13.2.1/bits/basic_string.tcc \
   /usr/include/c++/13.2.1/bits/char_traits.h \
   /usr/include/c++/13.2.1/bits/charconv.h \
+  /usr/include/c++/13.2.1/bits/chrono.h \
   /usr/include/c++/13.2.1/bits/codecvt.h \
   /usr/include/c++/13.2.1/bits/concept_check.h \
   /usr/include/c++/13.2.1/bits/cpp_type_traits.h \
@@ -334,6 +335,7 @@ CMakeFiles/Triangle.dir/main.cpp.o: main.cpp \
   /usr/include/c++/13.2.1/bits/new_allocator.h \
   /usr/include/c++/13.2.1/bits/ostream.tcc \
   /usr/include/c++/13.2.1/bits/ostream_insert.h \
+  /usr/include/c++/13.2.1/bits/parse_numbers.h \
   /usr/include/c++/13.2.1/bits/postypes.h \
   /usr/include/c++/13.2.1/bits/predefined_ops.h \
   /usr/include/c++/13.2.1/bits/ptr_traits.h \
@@ -368,6 +370,7 @@ CMakeFiles/Triangle.dir/main.cpp.o: main.cpp \
   /usr/include/c++/13.2.1/cctype \
   /usr/include/c++/13.2.1/cerrno \
   /usr/include/c++/13.2.1/cfloat \
+  /usr/include/c++/13.2.1/chrono \
   /usr/include/c++/13.2.1/climits \
   /usr/include/c++/13.2.1/clocale \
   /usr/include/c++/13.2.1/cmath \
@@ -376,6 +379,7 @@ CMakeFiles/Triangle.dir/main.cpp.o: main.cpp \
   /usr/include/c++/13.2.1/cstdint \
   /usr/include/c++/13.2.1/cstdio \
   /usr/include/c++/13.2.1/cstdlib \
+  /usr/include/c++/13.2.1/ctime \
   /usr/include/c++/13.2.1/cwchar \
   /usr/include/c++/13.2.1/cwctype \
   /usr/include/c++/13.2.1/debug/assertions.h \
@@ -399,6 +403,7 @@ CMakeFiles/Triangle.dir/main.cpp.o: main.cpp \
   /usr/include/c++/13.2.1/pstl/execution_defs.h \
   /usr/include/c++/13.2.1/pstl/glue_algorithm_defs.h \
   /usr/include/c++/13.2.1/pstl/pstl_config.h \
+  /usr/include/c++/13.2.1/ratio \
   /usr/include/c++/13.2.1/stdexcept \
   /usr/include/c++/13.2.1/streambuf \
   /usr/include/c++/13.2.1/string \
@@ -482,6 +487,8 @@ CMakeFiles/Triangle.dir/main.cpp.o: main.cpp \
   /usr/include/glm/detail/type_vec4.hpp \
   /usr/include/glm/detail/type_vec4.inl \
   /usr/include/glm/exponential.hpp \
+  /usr/include/glm/ext/matrix_clip_space.hpp \
+  /usr/include/glm/ext/matrix_clip_space.inl \
   /usr/include/glm/ext/matrix_double2x2.hpp \
   /usr/include/glm/ext/matrix_double2x2_precision.hpp \
   /usr/include/glm/ext/matrix_double2x3.hpp \
@@ -518,6 +525,12 @@ CMakeFiles/Triangle.dir/main.cpp.o: main.cpp \
   /usr/include/glm/ext/matrix_float4x3_precision.hpp \
   /usr/include/glm/ext/matrix_float4x4.hpp \
   /usr/include/glm/ext/matrix_float4x4_precision.hpp \
+  /usr/include/glm/ext/matrix_projection.hpp \
+  /usr/include/glm/ext/matrix_projection.inl \
+  /usr/include/glm/ext/matrix_transform.hpp \
+  /usr/include/glm/ext/matrix_transform.inl \
+  /usr/include/glm/ext/scalar_constants.hpp \
+  /usr/include/glm/ext/scalar_constants.inl \
   /usr/include/glm/ext/scalar_int_sized.hpp \
   /usr/include/glm/ext/scalar_uint_sized.hpp \
   /usr/include/glm/ext/vector_bool2.hpp \
@@ -553,6 +566,10 @@ CMakeFiles/Triangle.dir/main.cpp.o: main.cpp \
   /usr/include/glm/fwd.hpp \
   /usr/include/glm/geometric.hpp \
   /usr/include/glm/glm.hpp \
+  /usr/include/glm/gtc/constants.hpp \
+  /usr/include/glm/gtc/constants.inl \
+  /usr/include/glm/gtc/matrix_transform.hpp \
+  /usr/include/glm/gtc/matrix_transform.inl \
   /usr/include/glm/integer.hpp \
   /usr/include/glm/mat2x2.hpp \
   /usr/include/glm/mat2x3.hpp \
@@ -1212,8 +1229,6 @@ p_device.cpp:
 
 /usr/include/glm/trigonometric.hpp:
 
-/usr/include/glm/simd/platform.h:
-
 /usr/include/glm/mat4x4.hpp:
 
 /usr/include/glm/mat4x3.hpp:
@@ -1229,6 +1244,14 @@ p_device.cpp:
 /usr/include/glm/mat2x3.hpp:
 
 /usr/include/glm/mat2x2.hpp:
+
+/usr/include/glm/simd/platform.h:
+
+/usr/include/glm/gtc/matrix_transform.hpp:
+
+/usr/include/glm/gtc/constants.inl:
+
+/usr/include/glm/gtc/constants.hpp:
 
 /usr/include/glm/fwd.hpp:
 
@@ -1264,11 +1287,17 @@ p_device.cpp:
 
 /usr/include/glm/ext/vector_bool3.hpp:
 
-/usr/include/glm/ext/vector_bool2_precision.hpp:
-
 /usr/include/glm/ext/vector_bool2.hpp:
 
 /usr/include/glm/ext/scalar_uint_sized.hpp:
+
+/usr/include/glm/ext/scalar_constants.inl:
+
+/usr/include/glm/ext/scalar_constants.hpp:
+
+/usr/include/glm/ext/matrix_projection.inl:
+
+/usr/include/glm/ext/matrix_projection.hpp:
 
 /usr/include/glm/ext/matrix_float4x4_precision.hpp:
 
@@ -1289,6 +1318,8 @@ p_device.cpp:
 /usr/include/glm/ext/matrix_float3x4.hpp:
 
 /usr/include/glm/ext/matrix_float3x3_precision.hpp:
+
+/usr/include/glm/ext/matrix_transform.inl:
 
 /usr/include/glm/ext/matrix_float3x3.hpp:
 
@@ -1326,13 +1357,13 @@ p_device.cpp:
 
 /usr/include/glm/ext/matrix_double2x2.hpp:
 
+/usr/include/glm/ext/matrix_clip_space.hpp:
+
 /usr/include/glm/exponential.hpp:
 
 /usr/include/glm/detail/type_vec3.inl:
 
 /usr/include/glm/detail/type_vec2.inl:
-
-/usr/include/glm/detail/type_vec1.inl:
 
 /usr/include/glm/detail/type_mat4x4.inl:
 
@@ -1356,7 +1387,11 @@ p_device.cpp:
 
 /usr/include/glm/detail/type_half.hpp:
 
+/usr/include/glm/ext/matrix_clip_space.inl:
+
 /usr/include/glm/detail/setup.hpp:
+
+/usr/include/glm/gtc/matrix_transform.inl:
 
 /usr/include/glm/detail/type_mat2x3.hpp:
 
@@ -1393,6 +1428,18 @@ p_device.cpp:
 /usr/include/c++/13.2.1/tr1/riemann_zeta.tcc:
 
 /usr/include/c++/13.2.1/tr1/poly_laguerre.tcc:
+
+/usr/include/c++/13.2.1/tr1/poly_hermite.tcc:
+
+/usr/include/c++/13.2.1/tr1/modified_bessel_func.tcc:
+
+/usr/include/c++/13.2.1/tr1/legendre_function.tcc:
+
+/usr/include/glm/detail/type_mat3x3.hpp:
+
+/usr/include/c++/13.2.1/tr1/hypergeometric.tcc:
+
+/usr/include/c++/13.2.1/tr1/gamma.tcc:
 
 /usr/include/c++/13.2.1/cctype:
 
@@ -1460,8 +1507,6 @@ p_device.cpp:
 
 /usr/include/c++/13.2.1/cstdio:
 
-/usr/include/c++/13.2.1/tr1/gamma.tcc:
-
 /usr/include/bits/timesize.h:
 
 /usr/include/c++/13.2.1/vector:
@@ -1503,10 +1548,6 @@ p_device.cpp:
 /usr/include/bits/floatn-common.h:
 
 /usr/include/c++/13.2.1/bits/cxxabi_init_exception.h:
-
-/usr/include/glm/detail/type_mat3x3.hpp:
-
-/usr/include/c++/13.2.1/tr1/hypergeometric.tcc:
 
 /usr/include/c++/13.2.1/bits/char_traits.h:
 
@@ -1598,10 +1639,6 @@ debugshit.hpp:
 
 /usr/include/ctype.h:
 
-/usr/include/c++/13.2.1/bits/hash_bytes.h:
-
-/usr/include/bits/types/struct_sched_param.h:
-
 /usr/include/GL/glext.h:
 
 /usr/include/glm/ext/vector_uint3_sized.hpp:
@@ -1657,8 +1694,6 @@ debugshit.hpp:
 /usr/include/c++/13.2.1/bits/basic_string.h:
 
 /usr/include/c++/13.2.1/bits/cpp_type_traits.h:
-
-/usr/include/bits/types/__mbstate_t.h:
 
 /usr/include/glm/ext/matrix_double2x2_precision.hpp:
 
@@ -1718,6 +1753,10 @@ debugshit.hpp:
 
 /usr/include/c++/13.2.1/typeinfo:
 
+/usr/include/bits/types/__mbstate_t.h:
+
+/usr/include/c++/13.2.1/chrono:
+
 /usr/include/glm/detail/type_mat2x2.hpp:
 
 /usr/include/bits/types.h:
@@ -1751,8 +1790,6 @@ debugshit.hpp:
 /usr/include/glm/ext/vector_int2_sized.hpp:
 
 /usr/include/c++/13.2.1/debug/debug.h:
-
-/usr/include/c++/13.2.1/tr1/modified_bessel_func.tcc:
 
 /usr/include/c++/13.2.1/bits/stl_function.h:
 
@@ -1854,6 +1891,10 @@ debugshit.hpp:
 
 /usr/include/c++/13.2.1/x86_64-pc-linux-gnu/bits/os_defines.h:
 
+/usr/include/glm/detail/type_vec1.inl:
+
+/usr/include/c++/13.2.1/bits/chrono.h:
+
 /usr/include/errno.h:
 
 /usr/include/glm/detail/type_vec4.hpp:
@@ -1866,12 +1907,6 @@ debugshit.hpp:
 
 /usr/include/stdc-predef.h:
 
-/usr/include/asm/errno.h:
-
-/usr/include/bits/stdint-uintn.h:
-
-/usr/include/vulkan/vk_platform.h:
-
 /usr/include/endian.h:
 
 /usr/include/stdint.h:
@@ -1879,6 +1914,8 @@ debugshit.hpp:
 /usr/include/glm/detail/func_integer.inl:
 
 /usr/include/stdlib.h:
+
+/usr/include/glm/ext/matrix_transform.hpp:
 
 /usr/include/c++/13.2.1/system_error:
 
@@ -1974,6 +2011,14 @@ requirement.hpp:
 
 /usr/include/c++/13.2.1/array:
 
+/usr/include/asm/errno.h:
+
+/usr/include/bits/stdint-uintn.h:
+
+/usr/include/vulkan/vk_platform.h:
+
+/usr/include/c++/13.2.1/bits/parse_numbers.h:
+
 /usr/include/glm/detail/type_vec2.hpp:
 
 /usr/include/glm/detail/type_mat2x3.inl:
@@ -2010,10 +2055,16 @@ requirement.hpp:
 
 /usr/include/c++/13.2.1/optional:
 
+/usr/include/glm/ext/vector_bool2_precision.hpp:
+
+/usr/include/c++/13.2.1/ctime:
+
+/usr/include/c++/13.2.1/bits/hash_bytes.h:
+
+/usr/include/bits/types/struct_sched_param.h:
+
+/usr/include/c++/13.2.1/ratio:
+
 /usr/include/c++/13.2.1/ext/aligned_buffer.h:
 
 /usr/include/c++/13.2.1/tr1/beta_function.tcc:
-
-/usr/include/c++/13.2.1/tr1/legendre_function.tcc:
-
-/usr/include/c++/13.2.1/tr1/poly_hermite.tcc:
