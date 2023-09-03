@@ -59,9 +59,10 @@ struct Vertex {
 };
 
 struct UniformBufferObject {
-	glm::mat4 model;
-	glm::mat4 view;
-	glm::mat4 proj;
+	//be explicit abt alignments, it needs to match the vulkan spec once it goes to the shader
+	alignas(16) glm::mat4 model;
+	alignas(16) glm::mat4 view;
+	alignas(16) glm::mat4 proj;
 };
 
 // clang-format off
