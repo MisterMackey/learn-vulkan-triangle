@@ -44,6 +44,8 @@ void p_device::createLogicalDevice(VkDevice *handle_device, const VkPhysicalDevi
 	}
 
 	VkPhysicalDeviceFeatures deviceFeatures{}; //features we want, we get back to this later
+	//liek right now
+	deviceFeatures.samplerAnisotropy = VK_TRUE;
 	//that does it for the queue we want, now to make the device itself
 	VkDeviceCreateInfo createInfo{};
 	createInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;

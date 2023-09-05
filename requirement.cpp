@@ -119,8 +119,8 @@ bool trequirement::isDeviceSuitable(VkPhysicalDevice device, const VkSurfaceKHR&
 {
 	VkPhysicalDeviceProperties props;
 	vkGetPhysicalDeviceProperties(device, &props);
-	VkPhysicalDeviceFeatures features;
-	vkGetPhysicalDeviceFeatures(device, &features);
+	VkPhysicalDeviceFeatures supportedFeatures;
+	vkGetPhysicalDeviceFeatures(device, &supportedFeatures);
 	//here would be code that does stuff and decides based on properties and features
 
 	auto queueIndices = findQueuFamilies(device, surface);
@@ -129,7 +129,7 @@ bool trequirement::isDeviceSuitable(VkPhysicalDevice device, const VkSurfaceKHR&
 	auto support = querySwapChainSupport(device, surface);
 	bool swapChainAdequate = !support.formats.empty() && !support.presentModes.empty();
 
-	return queueIndices.isComplete() && extensionsSupported && swapChainAdequate;
+	return queueIndices.isComplete() && extensionsSupported && swapChainAdequate && supportedFeatures.samplerAnisotropy;
 }
 
 p_device::QueueFamilyIndices trequirement::findQueuFamilies(VkPhysicalDevice device, const VkSurfaceKHR& surface)
