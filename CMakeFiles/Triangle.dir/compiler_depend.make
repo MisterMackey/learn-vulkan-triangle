@@ -210,6 +210,7 @@ CMakeFiles/Triangle.dir/main.cpp.o: main.cpp \
   presentation.hpp \
   requirement.hpp \
   shaderLoading.hpp \
+  stb_linking.hpp \
   /usr/include/GL/gl.h \
   /usr/include/GL/glext.h \
   /usr/include/GLFW/glfw3.h \
@@ -397,6 +398,7 @@ CMakeFiles/Triangle.dir/main.cpp.o: main.cpp \
   /usr/include/c++/13.2.1/iostream \
   /usr/include/c++/13.2.1/istream \
   /usr/include/c++/13.2.1/limits \
+  /usr/include/c++/13.2.1/math.h \
   /usr/include/c++/13.2.1/new \
   /usr/include/c++/13.2.1/optional \
   /usr/include/c++/13.2.1/ostream \
@@ -405,6 +407,7 @@ CMakeFiles/Triangle.dir/main.cpp.o: main.cpp \
   /usr/include/c++/13.2.1/pstl/pstl_config.h \
   /usr/include/c++/13.2.1/ratio \
   /usr/include/c++/13.2.1/stdexcept \
+  /usr/include/c++/13.2.1/stdlib.h \
   /usr/include/c++/13.2.1/streambuf \
   /usr/include/c++/13.2.1/string \
   /usr/include/c++/13.2.1/string_view \
@@ -597,6 +600,7 @@ CMakeFiles/Triangle.dir/main.cpp.o: main.cpp \
   /usr/include/math.h \
   /usr/include/pthread.h \
   /usr/include/sched.h \
+  /usr/include/stb/stb_image.h \
   /usr/include/stdc-predef.h \
   /usr/include/stdint.h \
   /usr/include/stdio.h \
@@ -618,12 +622,16 @@ CMakeFiles/Triangle.dir/main.cpp.o: main.cpp \
   /usr/include/vulkan/vulkan_core.h \
   /usr/include/wchar.h \
   /usr/include/wctype.h \
+  /usr/lib/gcc/x86_64-pc-linux-gnu/13.2.1/include/emmintrin.h \
   /usr/lib/gcc/x86_64-pc-linux-gnu/13.2.1/include/float.h \
   /usr/lib/gcc/x86_64-pc-linux-gnu/13.2.1/include/limits.h \
+  /usr/lib/gcc/x86_64-pc-linux-gnu/13.2.1/include/mm_malloc.h \
+  /usr/lib/gcc/x86_64-pc-linux-gnu/13.2.1/include/mmintrin.h \
   /usr/lib/gcc/x86_64-pc-linux-gnu/13.2.1/include/stdarg.h \
   /usr/lib/gcc/x86_64-pc-linux-gnu/13.2.1/include/stddef.h \
   /usr/lib/gcc/x86_64-pc-linux-gnu/13.2.1/include/stdint.h \
-  /usr/lib/gcc/x86_64-pc-linux-gnu/13.2.1/include/syslimits.h
+  /usr/lib/gcc/x86_64-pc-linux-gnu/13.2.1/include/syslimits.h \
+  /usr/lib/gcc/x86_64-pc-linux-gnu/13.2.1/include/xmmintrin.h
 
 CMakeFiles/Triangle.dir/p_device.cpp.o: p_device.cpp \
   p_device.hpp \
@@ -1215,11 +1223,17 @@ presentation.cpp:
 
 /usr/include/c++/13.2.1/bits/stl_multiset.h:
 
-p_device.cpp:
-
 /usr/lib/gcc/x86_64-pc-linux-gnu/13.2.1/include/syslimits.h:
 
+p_device.cpp:
+
+/usr/lib/gcc/x86_64-pc-linux-gnu/13.2.1/include/mmintrin.h:
+
+/usr/lib/gcc/x86_64-pc-linux-gnu/13.2.1/include/mm_malloc.h:
+
 /usr/include/string.h:
+
+/usr/include/stb/stb_image.h:
 
 /usr/include/linux/limits.h:
 
@@ -1441,6 +1455,12 @@ p_device.cpp:
 
 /usr/include/c++/13.2.1/tr1/gamma.tcc:
 
+/usr/include/c++/13.2.1/tr1/exp_integral.tcc:
+
+/usr/include/c++/13.2.1/ext/aligned_buffer.h:
+
+/usr/include/c++/13.2.1/tr1/beta_function.tcc:
+
 /usr/include/c++/13.2.1/cctype:
 
 /usr/include/glm/vec4.hpp:
@@ -1481,9 +1501,17 @@ p_device.cpp:
 
 /usr/include/c++/13.2.1/bits/stl_construct.h:
 
+/usr/include/glm/ext/vector_uint3_sized.hpp:
+
+/usr/include/c++/13.2.1/tr1/ell_integral.tcc:
+
+/usr/include/c++/13.2.1/bits/std_abs.h:
+
 /usr/include/glm/ext/matrix_double4x2_precision.hpp:
 
 /usr/include/c++/13.2.1/bits/vector.tcc:
+
+/usr/include/c++/13.2.1/stdlib.h:
 
 /usr/include/c++/13.2.1/bits/predefined_ops.h:
 
@@ -1641,12 +1669,6 @@ debugshit.hpp:
 
 /usr/include/GL/glext.h:
 
-/usr/include/glm/ext/vector_uint3_sized.hpp:
-
-/usr/include/c++/13.2.1/bits/std_abs.h:
-
-/usr/include/c++/13.2.1/tr1/ell_integral.tcc:
-
 /usr/include/asm-generic/errno.h:
 
 /usr/include/bits/fp-logb.h:
@@ -1675,11 +1697,15 @@ debugshit.hpp:
 
 /usr/include/asm-generic/errno-base.h:
 
+/usr/lib/gcc/x86_64-pc-linux-gnu/13.2.1/include/xmmintrin.h:
+
 /usr/include/glm/detail/compute_vector_relational.hpp:
 
 /usr/include/bits/types/__sigset_t.h:
 
 /usr/include/c++/13.2.1/cerrno:
+
+/usr/include/c++/13.2.1/math.h:
 
 /usr/include/bits/types/struct_itimerspec.h:
 
@@ -1746,6 +1772,8 @@ debugshit.hpp:
 /usr/include/bits/endian.h:
 
 /usr/include/c++/13.2.1/cfloat:
+
+stb_linking.hpp:
 
 /usr/include/c++/13.2.1/pstl/execution_defs.h:
 
@@ -2035,8 +2063,6 @@ requirement.hpp:
 
 /usr/include/c++/13.2.1/bits/stl_bvector.h:
 
-/usr/include/c++/13.2.1/tr1/exp_integral.tcc:
-
 /usr/include/c++/13.2.1/bits/stl_heap.h:
 
 /usr/include/c++/13.2.1/bits/stl_tempbuf.h:
@@ -2046,6 +2072,8 @@ requirement.hpp:
 /usr/include/vk_video/vulkan_video_codec_h264std.h:
 
 /usr/include/c++/13.2.1/cassert:
+
+/usr/lib/gcc/x86_64-pc-linux-gnu/13.2.1/include/emmintrin.h:
 
 /usr/include/c++/13.2.1/climits:
 
@@ -2064,7 +2092,3 @@ requirement.hpp:
 /usr/include/bits/types/struct_sched_param.h:
 
 /usr/include/c++/13.2.1/ratio:
-
-/usr/include/c++/13.2.1/ext/aligned_buffer.h:
-
-/usr/include/c++/13.2.1/tr1/beta_function.tcc:
