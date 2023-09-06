@@ -34,6 +34,7 @@ const int windowWidth = 600;
 struct Vertex {
 	glm::vec2 pos;
 	glm::vec3 color;
+	glm::vec2 texCoord;
 
 	static VkVertexInputBindingDescription getBindingDescription()
 	{
@@ -44,9 +45,9 @@ struct Vertex {
 		return bindingDescription;
 	}
 
-	static std::array<VkVertexInputAttributeDescription, 2> getAttributeDescriptions()
+	static std::array<VkVertexInputAttributeDescription, 3> getAttributeDescriptions()
 	{
-		std::array<VkVertexInputAttributeDescription, 2> attributedescriptions{};
+		std::array<VkVertexInputAttributeDescription, 3> attributedescriptions{};
 		attributedescriptions[0].binding = 0;
 		attributedescriptions[0].location = 0;
 		attributedescriptions[0].format = VK_FORMAT_R32G32_SFLOAT;
@@ -56,6 +57,11 @@ struct Vertex {
 		attributedescriptions[1].location = 1;
 		attributedescriptions[1].format = VK_FORMAT_R32G32B32_SFLOAT;
 		attributedescriptions[1].offset = offsetof(Vertex, color);
+
+		attributedescriptions[2].binding = 0;
+		attributedescriptions[2].location = 2;
+		attributedescriptions[2].format = VK_FORMAT_R32G32_SFLOAT;
+		attributedescriptions[2].offset = offsetof(Vertex, texCoord);
 		return attributedescriptions;
 	}
 };
@@ -69,10 +75,10 @@ struct UniformBufferObject {
 
 // clang-format off
 const std::vector<Vertex> vertices = {
-	{{-0.5f, -0.5f}, {1.0f, 0.0f, 0.0f}},
-	{{0.5f, -0.5f}, {0.0f, 1.0f, 0.0f}},
-	{{0.5f, 0.5f}, {0.0f, 0.0f, 1.0f}},
-	{{-0.5f, 0.5f}, {1.0f, 1.0f, 1.0f}},
+	{{-0.5f, -0.5f}, {1.0f, 0.0f, 0.0f}, {1.0f, 0.0f}},
+	{{0.5f, -0.5f}, {0.0f, 1.0f, 0.0f}, {0.0f, 0.0f}},
+	{{0.5f, 0.5f}, {0.0f, 0.0f, 1.0f}, {0.0f, 1.0f}},
+	{{-0.5f, 0.5f}, {1.0f, 1.0f, 1.0f}, {1.0f, 1.0f}},
 };
 
 const std::vector<uint16_t> indices = {
@@ -792,10 +798,19 @@ class TriangleApp
 		uboLayoutBinding.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
 		uboLayoutBinding.pImmutableSamplers = nullptr;
 
+		VkDescriptorSetLayoutBinding samplerLayoutBinding{};
+		samplerLayoutBinding.binding = 1;
+		samplerLayoutBinding.descriptorCount = 1;
+		samplerLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+		samplerLayoutBinding.pImmutableSamplers = nullptr;
+		samplerLayoutBinding.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
+
+		std::array<VkDescriptorSetLayoutBinding, 2> bindings = {uboLayoutBinding, samplerLayoutBinding};
+
 		VkDescriptorSetLayoutCreateInfo layoutInfo{};
 		layoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
-		layoutInfo.bindingCount = 1;
-		layoutInfo.pBindings = &uboLayoutBinding;
+		layoutInfo.bindingCount = static_cast<uint32_t>(bindings.size());
+		layoutInfo.pBindings = bindings.data();
 
 		if (vkCreateDescriptorSetLayout(device, &layoutInfo, nullptr, &descriptorSetLayout) != VK_SUCCESS) {
 			throw std::runtime_error("Failed to create descriptor set layout");
@@ -844,14 +859,16 @@ class TriangleApp
 
 	void createDescriptorPool(void)
 	{
-		VkDescriptorPoolSize poolSize{};
-		poolSize.type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-		poolSize.descriptorCount = static_cast<uint32_t>(MAX_FRAMES_IN_FLIGHT);
+		std::array<VkDescriptorPoolSize, 2> poolSizes;
+		poolSizes[0].type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+		poolSizes[0].descriptorCount = static_cast<uint32_t>(MAX_FRAMES_IN_FLIGHT);
+		poolSizes[1].type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+		poolSizes[1].descriptorCount = static_cast<uint32_t>(MAX_FRAMES_IN_FLIGHT);
 
 		VkDescriptorPoolCreateInfo poolInfo{};
 		poolInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
-		poolInfo.poolSizeCount = 1;
-		poolInfo.pPoolSizes = &poolSize;
+		poolInfo.poolSizeCount = static_cast<uint32_t>(poolSizes.size());
+		poolInfo.pPoolSizes = poolSizes.data();
 		poolInfo.maxSets = static_cast<uint32_t>(MAX_FRAMES_IN_FLIGHT);
 		poolInfo.flags = 0; // optional, can be set to indicate that the sets can be freed during runtime
 
@@ -881,18 +898,29 @@ class TriangleApp
 			bufferInfo.offset = 0;
 			bufferInfo.range = sizeof(UniformBufferObject);
 
-			VkWriteDescriptorSet descriptorWrite{};
-			descriptorWrite.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-			descriptorWrite.dstSet = descriptorSets[i];
-			descriptorWrite.dstBinding = 0;
-			descriptorWrite.dstArrayElement = 0;
-			descriptorWrite.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-			descriptorWrite.descriptorCount = 1;
-			descriptorWrite.pBufferInfo = &bufferInfo;
-			descriptorWrite.pImageInfo = nullptr;
-			descriptorWrite.pTexelBufferView = nullptr;
+			VkDescriptorImageInfo imageInfo{};
+			imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+			imageInfo.imageView = textureImageView;
+			imageInfo.sampler = textureSampler;
 
-			vkUpdateDescriptorSets(device, 1, &descriptorWrite, 0, nullptr);
+			std::array<VkWriteDescriptorSet, 2> descriptorWrites{};
+			descriptorWrites[0].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+			descriptorWrites[0].dstSet = descriptorSets[i];
+			descriptorWrites[0].dstBinding = 0;
+			descriptorWrites[0].dstArrayElement = 0;
+			descriptorWrites[0].descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+			descriptorWrites[0].descriptorCount = 1;
+			descriptorWrites[0].pBufferInfo = &bufferInfo;
+
+			descriptorWrites[1].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+			descriptorWrites[1].dstSet = descriptorSets[i];
+			descriptorWrites[1].dstBinding = 1;
+			descriptorWrites[1].dstArrayElement = 0;
+			descriptorWrites[1].descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+			descriptorWrites[1].descriptorCount = 1;
+			descriptorWrites[1].pImageInfo = &imageInfo;
+
+			vkUpdateDescriptorSets(device, 1, descriptorWrites.data(), 0, nullptr);
 		}
 	}
 
@@ -902,7 +930,7 @@ class TriangleApp
 		int texHeight;
 		int texChannels;
 		stbi_uc *pixels = stbi_load("textures/texture.jpg", &texWidth, &texHeight, &texChannels, STBI_rgb_alpha);
-		if (!pixels){
+		if (!pixels) {
 			throw std::runtime_error("failed to load texture image data");
 		}
 		VkDeviceSize imageSize = texWidth * texHeight * 4;
@@ -968,10 +996,10 @@ class TriangleApp
 
 	VkCommandBuffer beginSingleTimeCommands(void)
 	{
-		VkCommandBufferAllocateInfo allocInfo {};
+		VkCommandBufferAllocateInfo allocInfo{};
 		allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
 		allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-		allocInfo.commandPool = memoryTransferCommandPool;//using the transient for this
+		allocInfo.commandPool = memoryTransferCommandPool; // using the transient for this
 		allocInfo.commandBufferCount = 1;
 
 		VkCommandBuffer commandBuffer;
@@ -989,7 +1017,7 @@ class TriangleApp
 	{
 		vkEndCommandBuffer(commandBuffer);
 
-		VkSubmitInfo submitInfo {};
+		VkSubmitInfo submitInfo{};
 		submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
 		submitInfo.commandBufferCount = 1;
 		submitInfo.pCommandBuffers = &commandBuffer;
@@ -1019,8 +1047,8 @@ class TriangleApp
 
 		VkPipelineStageFlags sourceStage;
 		VkPipelineStageFlags destinationStage;
-		if (oldLayout == VK_IMAGE_LAYOUT_UNDEFINED && newLayout == VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL){
-			barrier.srcAccessMask =0;
+		if (oldLayout == VK_IMAGE_LAYOUT_UNDEFINED && newLayout == VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL) {
+			barrier.srcAccessMask = 0;
 			barrier.dstAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
 			sourceStage = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
 			destinationStage = VK_PIPELINE_STAGE_TRANSFER_BIT;
@@ -1050,16 +1078,13 @@ class TriangleApp
 		region.imageSubresource.mipLevel = 0;
 		region.imageSubresource.baseArrayLayer = 0;
 		region.imageSubresource.layerCount = 1;
-		region.imageOffset = {0,0,0};
+		region.imageOffset = {0, 0, 0};
 		region.imageExtent = {width, height, 1};
 
 		endSingleTimeCommands(commandBuffer);
 	}
 
-	void createTextureImageView(void)
-	{
-		textureImageView = createImageView(textureImage, VK_FORMAT_R8G8B8A8_SRGB);
-	}
+	void createTextureImageView(void) { textureImageView = createImageView(textureImage, VK_FORMAT_R8G8B8A8_SRGB); }
 
 	VkImageView createImageView(VkImage image, VkFormat format)
 	{
@@ -1106,7 +1131,7 @@ class TriangleApp
 		samplerInfo.minLod = 0.0f;
 		samplerInfo.maxLod = 0.0f;
 
-		if (vkCreateSampler(device, &samplerInfo, nullptr, &textureSampler) != VK_SUCCESS){
+		if (vkCreateSampler(device, &samplerInfo, nullptr, &textureSampler) != VK_SUCCESS) {
 			throw std::runtime_error("Failed to create texture sampler");
 		}
 	}
