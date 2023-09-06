@@ -920,7 +920,7 @@ class TriangleApp
 			descriptorWrites[1].descriptorCount = 1;
 			descriptorWrites[1].pImageInfo = &imageInfo;
 
-			vkUpdateDescriptorSets(device, 1, descriptorWrites.data(), 0, nullptr);
+			vkUpdateDescriptorSets(device, static_cast<uint32_t>(descriptorWrites.size()), descriptorWrites.data(), 0, nullptr);
 		}
 	}
 
@@ -1080,6 +1080,7 @@ class TriangleApp
 		region.imageSubresource.layerCount = 1;
 		region.imageOffset = {0, 0, 0};
 		region.imageExtent = {width, height, 1};
+		vkCmdCopyBufferToImage(commandBuffer, buffer, image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &region);
 
 		endSingleTimeCommands(commandBuffer);
 	}
