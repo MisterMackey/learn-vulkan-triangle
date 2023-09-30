@@ -22,6 +22,8 @@
 #include <string.h>
 #include <vector>
 #define GLM_FORCE_RADIANS
+// glm uses depth range -1 to 1, we want 0 to 1 to coincide with vulkan expectation
+#define GLM_FORCE_DEPTH_ZERO_TO_ONE
 #include "stb_linking.hpp"
 #include <chrono>
 #include <glm/glm.hpp>
@@ -32,7 +34,7 @@ const int windowHeight = 800;
 const int windowWidth = 600;
 
 struct Vertex {
-	glm::vec2 pos;
+	glm::vec3 pos;
 	glm::vec3 color;
 	glm::vec2 texCoord;
 
@@ -50,7 +52,7 @@ struct Vertex {
 		std::array<VkVertexInputAttributeDescription, 3> attributedescriptions{};
 		attributedescriptions[0].binding = 0;
 		attributedescriptions[0].location = 0;
-		attributedescriptions[0].format = VK_FORMAT_R32G32_SFLOAT;
+		attributedescriptions[0].format = VK_FORMAT_R32G32B32_SFLOAT;
 		attributedescriptions[0].offset = offsetof(Vertex, pos);
 
 		attributedescriptions[1].binding = 0;
@@ -75,14 +77,20 @@ struct UniformBufferObject {
 
 // clang-format off
 const std::vector<Vertex> vertices = {
-	{{-0.5f, -0.5f}, {1.0f, 0.0f, 0.0f}, {1.0f, 0.0f}},
-	{{0.5f, -0.5f}, {0.0f, 1.0f, 0.0f}, {0.0f, 0.0f}},
-	{{0.5f, 0.5f}, {0.0f, 0.0f, 1.0f}, {0.0f, 1.0f}},
-	{{-0.5f, 0.5f}, {1.0f, 1.0f, 1.0f}, {1.0f, 1.0f}},
+	{{-0.5f, -0.5f, 0.0f}, {1.0f, 0.0f, 0.0f}, {1.0f, 0.0f}},
+	{{0.5f, -0.5f, 0.0f}, {0.0f, 1.0f, 0.0f}, {0.0f, 0.0f}},
+	{{0.5f, 0.5f, 0.0f}, {0.0f, 0.0f, 1.0f}, {0.0f, 1.0f}},
+	{{-0.5f, 0.5f, 0.0f}, {1.0f, 1.0f, 1.0f}, {1.0f, 1.0f}},
+
+	{{-0.5f, -0.5f, -0.5f}, {1.0f, 0.0f, 0.0f}, {1.0f, 0.0f}},
+	{{0.5f, -0.5f, -0.5f}, {0.0f, 1.0f, 0.0f}, {0.0f, 0.0f}},
+	{{0.5f, 0.5f, -0.5f}, {0.0f, 0.0f, 1.0f}, {0.0f, 1.0f}},
+	{{-0.5f, 0.5f, -0.5f}, {1.0f, 1.0f, 1.0f}, {1.0f, 1.0f}},
 };
 
 const std::vector<uint16_t> indices = {
-	0, 1, 2, 2, 3, 0
+	0, 1, 2, 2, 3, 0,
+	4, 5, 6, 6, 7, 4
 };
 // clang-format on
 
@@ -134,6 +142,10 @@ class TriangleApp
 	VkImageView textureImageView;
 	VkSampler textureSampler;
 
+	VkImage depthImage;
+	VkDeviceMemory depthImageMemory;
+	VkImageView depthImageView;
+
 	bool framebufferResized = false;
 
 	void initWindow(void)
@@ -168,6 +180,7 @@ class TriangleApp
 		createGraphicsPipeline();
 		createFramebuffers();
 		createCommandPools();
+		createDepthResources();
 		createTextureImage();
 		createTextureImageView();
 		createTextureSampler();
@@ -280,7 +293,7 @@ class TriangleApp
 	{
 		swapChainImageViews.resize(swapchainInfo.swapchainImages.size());
 		for (size_t i = 0; i < swapchainInfo.swapchainImages.size(); ++i) {
-			swapChainImageViews[i] = createImageView(swapchainInfo.swapchainImages[i], swapchainInfo.swapchainImageFormat);
+			swapChainImageViews[i] = createImageView(swapchainInfo.swapchainImages[i], swapchainInfo.swapchainImageFormat, VK_IMAGE_ASPECT_COLOR_BIT);
 		}
 	}
 
@@ -1085,9 +1098,9 @@ class TriangleApp
 		endSingleTimeCommands(commandBuffer);
 	}
 
-	void createTextureImageView(void) { textureImageView = createImageView(textureImage, VK_FORMAT_R8G8B8A8_SRGB); }
+	void createTextureImageView(void) { textureImageView = createImageView(textureImage, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_ASPECT_COLOR_BIT); }
 
-	VkImageView createImageView(VkImage image, VkFormat format)
+	VkImageView createImageView(VkImage image, VkFormat format, VkImageAspectFlags aspectFlags)
 	{
 		VkImageViewCreateInfo createInfo{};
 		createInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
@@ -1098,7 +1111,7 @@ class TriangleApp
 		createInfo.components.g = VK_COMPONENT_SWIZZLE_IDENTITY;
 		createInfo.components.b = VK_COMPONENT_SWIZZLE_IDENTITY;
 		createInfo.components.a = VK_COMPONENT_SWIZZLE_IDENTITY;
-		createInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+		createInfo.subresourceRange.aspectMask = aspectFlags;
 		createInfo.subresourceRange.baseMipLevel = 0;
 		createInfo.subresourceRange.levelCount = 1;
 		createInfo.subresourceRange.baseArrayLayer = 0;
@@ -1136,6 +1149,40 @@ class TriangleApp
 			throw std::runtime_error("Failed to create texture sampler");
 		}
 	}
+
+	void createDepthResources()
+	{
+		VkFormat depthFormat = findDepthFormat();
+		createImage(swapchainInfo.swapchainExtent.width, swapchainInfo.swapchainExtent.height, depthFormat, VK_IMAGE_TILING_OPTIMAL,
+			    VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, depthImage, depthImageMemory);
+
+		depthImageView = createImageView(depthImage, depthFormat, VK_IMAGE_ASPECT_DEPTH_BIT);
+	}
+
+	VkFormat findSupportedFormat(const std::vector<VkFormat> &candidates, VkImageTiling tiling, VkFormatFeatureFlags features)
+	{
+		for (VkFormat format : candidates) {
+			VkFormatProperties props;
+			vkGetPhysicalDeviceFormatProperties(physicalDevice, format, &props);
+			if (tiling == VK_IMAGE_TILING_LINEAR && (props.linearTilingFeatures & features) == features) {
+				return format;
+			} else if (tiling == VK_IMAGE_TILING_OPTIMAL && (props.optimalTilingFeatures & features) == features) {
+				return format;
+			} else {
+				continue;
+			}
+		}
+
+		throw std::runtime_error("Failed to find supported VkFormat");
+	}
+
+	VkFormat findDepthFormat()
+	{
+		return findSupportedFormat({VK_FORMAT_D32_SFLOAT, VK_FORMAT_D32_SFLOAT_S8_UINT, VK_FORMAT_D24_UNORM_S8_UINT}, VK_IMAGE_TILING_OPTIMAL,
+					   VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT);
+	}
+
+	bool hasStencilComponent(VkFormat format) { return format == VK_FORMAT_D32_SFLOAT_S8_UINT || VK_FORMAT_D24_UNORM_S8_UINT; }
 };
 
 int main(void)
