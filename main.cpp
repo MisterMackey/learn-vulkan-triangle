@@ -29,16 +29,21 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
+#define TINYOBJLOADER_IMPLEMENTATION
+#include <tiny_obj_loader.h>
+
 const int MAX_FRAMES_IN_FLIGHT = 2;
-const int windowHeight = 800;
-const int windowWidth = 600;
+const int WINDOW_HEIGHT = 800;
+const int WINDOW_WIDTH = 600;
+const std::string MODEL_PATH = "models/viking_room.obj";
+const std::string TEXTURE_PATH = "textures/viking_room.png";
 
 struct Vertex {
 	glm::vec3 pos;
 	glm::vec3 color;
 	glm::vec2 texCoord;
 
-	static VkVertexInputBindingDescription getBindingDescription()
+	static VkVertexInputBindingDescription getBindingDescription(void)
 	{
 		VkVertexInputBindingDescription bindingDescription{};
 		bindingDescription.binding = 0;
@@ -47,7 +52,7 @@ struct Vertex {
 		return bindingDescription;
 	}
 
-	static std::array<VkVertexInputAttributeDescription, 3> getAttributeDescriptions()
+	static std::array<VkVertexInputAttributeDescription, 3> getAttributeDescriptions(void)
 	{
 		std::array<VkVertexInputAttributeDescription, 3> attributedescriptions{};
 		attributedescriptions[0].binding = 0;
@@ -75,29 +80,10 @@ struct UniformBufferObject {
 	alignas(16) glm::mat4 proj;
 };
 
-// clang-format off
-const std::vector<Vertex> vertices = {
-	{{-0.5f, -0.5f, 0.0f}, {1.0f, 0.0f, 0.0f}, {1.0f, 0.0f}},
-	{{0.5f, -0.5f, 0.0f}, {0.0f, 1.0f, 0.0f}, {0.0f, 0.0f}},
-	{{0.5f, 0.5f, 0.0f}, {0.0f, 0.0f, 1.0f}, {0.0f, 1.0f}},
-	{{-0.5f, 0.5f, 0.0f}, {1.0f, 1.0f, 1.0f}, {1.0f, 1.0f}},
-
-	{{-0.5f, -0.5f, -0.5f}, {1.0f, 0.0f, 0.0f}, {1.0f, 0.0f}},
-	{{0.5f, -0.5f, -0.5f}, {0.0f, 1.0f, 0.0f}, {0.0f, 0.0f}},
-	{{0.5f, 0.5f, -0.5f}, {0.0f, 0.0f, 1.0f}, {0.0f, 1.0f}},
-	{{-0.5f, 0.5f, -0.5f}, {1.0f, 1.0f, 1.0f}, {1.0f, 1.0f}},
-};
-
-const std::vector<uint16_t> indices = {
-	0, 1, 2, 2, 3, 0,
-	4, 5, 6, 6, 7, 4
-};
-// clang-format on
-
 class TriangleApp
 {
       public:
-	void run()
+	void run(void)
 	{
 		initWindow();
 		initVulkan();
@@ -146,6 +132,9 @@ class TriangleApp
 	VkDeviceMemory depthImageMemory;
 	VkImageView depthImageView;
 
+	std::vector<Vertex> vertices;
+	std::vector<uint32_t> indices;
+
 	bool framebufferResized = false;
 
 	void initWindow(void)
@@ -153,7 +142,7 @@ class TriangleApp
 		glfwInit();
 		glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
 		glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
-		window = glfwCreateWindow(windowHeight, windowWidth, "Vulkanerino", nullptr, nullptr);
+		window = glfwCreateWindow(WINDOW_HEIGHT, WINDOW_WIDTH, "Vulkanerino", nullptr, nullptr);
 		glfwSetWindowUserPointer(window, this);
 		glfwSetFramebufferSizeCallback(window, framebufferResizeCallback);
 	}
@@ -184,6 +173,7 @@ class TriangleApp
 		createTextureImage();
 		createTextureImageView();
 		createTextureSampler();
+		loadModel();
 		createVertexBuffers();
 		createIndexBuffers();
 		createUniformBuffers();
@@ -293,7 +283,8 @@ class TriangleApp
 	{
 		swapChainImageViews.resize(swapchainInfo.swapchainImages.size());
 		for (size_t i = 0; i < swapchainInfo.swapchainImages.size(); ++i) {
-			swapChainImageViews[i] = createImageView(swapchainInfo.swapchainImages[i], swapchainInfo.swapchainImageFormat, VK_IMAGE_ASPECT_COLOR_BIT);
+			swapChainImageViews[i] =
+			    createImageView(swapchainInfo.swapchainImages[i], swapchainInfo.swapchainImageFormat, VK_IMAGE_ASPECT_COLOR_BIT);
 		}
 	}
 
@@ -402,18 +393,18 @@ class TriangleApp
 		colorBlendGlobal.blendConstants[2] = 0.0f;
 		colorBlendGlobal.blendConstants[3] = 0.0f;
 
-		//depth testing
+		// depth testing
 		VkPipelineDepthStencilStateCreateInfo depthStencil{};
 		depthStencil.sType = VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO;
 		depthStencil.depthTestEnable = VK_TRUE;
 		depthStencil.depthWriteEnable = VK_TRUE;
 		depthStencil.depthCompareOp = VK_COMPARE_OP_LESS;
 		depthStencil.depthBoundsTestEnable = VK_FALSE;
-		depthStencil.minDepthBounds = 0.0f;//optional
-		depthStencil.maxDepthBounds = 1.0f; //optional
+		depthStencil.minDepthBounds = 0.0f; // optional
+		depthStencil.maxDepthBounds = 1.0f; // optional
 		depthStencil.stencilTestEnable = VK_FALSE;
-		depthStencil.front = {}; //optional
-		depthStencil.back = {}; //optional
+		depthStencil.front = {}; // optional
+		depthStencil.back = {};	 // optional
 
 		// laayout
 		VkPipelineLayoutCreateInfo pipelineLayoutCreateInfo;
@@ -601,7 +592,7 @@ class TriangleApp
 		VkBuffer vertexBuffers[] = {vertexBuffer};
 		VkDeviceSize offsets[] = {0};
 		vkCmdBindVertexBuffers(buffer, 0, 1, vertexBuffers, offsets);
-		vkCmdBindIndexBuffer(buffer, indexBuffer, 0, VK_INDEX_TYPE_UINT16);
+		vkCmdBindIndexBuffer(buffer, indexBuffer, 0, VK_INDEX_TYPE_UINT32);
 
 		// scissor and viewport size are dynamic so set them now
 		VkViewport viewport{};
@@ -707,7 +698,7 @@ class TriangleApp
 		currentFrame = (currentFrame + 1) % MAX_FRAMES_IN_FLIGHT;
 	}
 
-	void recreateSwapChain()
+	void recreateSwapChain(void)
 	{
 		int width = 0;
 		int height = 0;
@@ -727,7 +718,7 @@ class TriangleApp
 		createFramebuffers();
 	}
 
-	void cleanupSwapChain()
+	void cleanupSwapChain(void)
 	{
 		vkDestroyImageView(device, depthImageView, nullptr);
 		vkDestroyImage(device, depthImage, nullptr);
@@ -977,7 +968,7 @@ class TriangleApp
 		int texWidth;
 		int texHeight;
 		int texChannels;
-		stbi_uc *pixels = stbi_load("textures/texture.jpg", &texWidth, &texHeight, &texChannels, STBI_rgb_alpha);
+		stbi_uc *pixels = stbi_load(TEXTURE_PATH.c_str(), &texWidth, &texHeight, &texChannels, STBI_rgb_alpha);
 		if (!pixels) {
 			throw std::runtime_error("failed to load texture image data");
 		}
@@ -1087,7 +1078,7 @@ class TriangleApp
 		barrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
 		barrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
 		barrier.image = image;
-		if (newLayout == VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL){
+		if (newLayout == VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL) {
 			barrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_DEPTH_BIT;
 			if (hasStencilComponent(format)) {
 				barrier.subresourceRange.aspectMask |= VK_IMAGE_ASPECT_STENCIL_BIT;
@@ -1117,8 +1108,7 @@ class TriangleApp
 			barrier.dstAccessMask = VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT | VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
 			sourceStage = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
 			destinationStage = VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT;
-		}
-		else {
+		} else {
 			throw std::invalid_argument("unsupported layout transition");
 		}
 
@@ -1171,7 +1161,7 @@ class TriangleApp
 		return imageView;
 	}
 
-	void createTextureSampler()
+	void createTextureSampler(void)
 	{
 		VkSamplerCreateInfo samplerInfo{};
 		samplerInfo.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
@@ -1198,16 +1188,15 @@ class TriangleApp
 		}
 	}
 
-	void createDepthResources()
+	void createDepthResources(void)
 	{
 		VkFormat depthFormat = findDepthFormat();
 		createImage(swapchainInfo.swapchainExtent.width, swapchainInfo.swapchainExtent.height, depthFormat, VK_IMAGE_TILING_OPTIMAL,
 			    VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, depthImage, depthImageMemory);
 
 		depthImageView = createImageView(depthImage, depthFormat, VK_IMAGE_ASPECT_DEPTH_BIT);
-		//optional transition but good to do for learning (its optional cuz the tutorial does it in the render pass anyway)
+		// optional transition but good to do for learning (its optional cuz the tutorial does it in the render pass anyway)
 		transitionImageLayout(depthImage, depthFormat, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL);
-
 	}
 
 	VkFormat findSupportedFormat(const std::vector<VkFormat> &candidates, VkImageTiling tiling, VkFormatFeatureFlags features)
@@ -1227,15 +1216,52 @@ class TriangleApp
 		throw std::runtime_error("Failed to find supported VkFormat");
 	}
 
-	VkFormat findDepthFormat()
+	VkFormat findDepthFormat(void)
 	{
 		return findSupportedFormat({VK_FORMAT_D32_SFLOAT, VK_FORMAT_D32_SFLOAT_S8_UINT, VK_FORMAT_D24_UNORM_S8_UINT}, VK_IMAGE_TILING_OPTIMAL,
 					   VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT);
 	}
 
-	bool hasStencilComponent(VkFormat format)
+	bool hasStencilComponent(VkFormat format) { return format == VK_FORMAT_D32_SFLOAT_S8_UINT || format == VK_FORMAT_D24_UNORM_S8_UINT; }
+
+	void loadModel(void)
 	{
-		return format == VK_FORMAT_D32_SFLOAT_S8_UINT || format == VK_FORMAT_D24_UNORM_S8_UINT;
+		tinyobj::attrib_t attrib;
+		std::vector<tinyobj::shape_t> shapes;
+		std::vector<tinyobj::material_t> materials;
+		std::string warn, err;
+
+		if (!tinyobj::LoadObj(&attrib, &shapes, &materials, &warn, &err, MODEL_PATH.c_str())) {
+			throw std::runtime_error(warn + err);
+		}
+
+		for (const auto &shape : shapes) {
+			for (const auto &index : shape.mesh.indices) {
+				Vertex vertex{};
+
+				/*
+				https://vulkan-tutorial.com/Loading_models
+				For simplicity, we will assume that every vertex is unique for now, hence the simple auto-increment indices. The index variable
+				is of type tinyobj::index_t, which contains the vertex_index, normal_index and texcoord_index members. We need to use these
+				indices to look up the actual vertex attributes in the attrib arrays: Unfortunately the attrib.vertices array is an array of
+				float values instead of something like glm::vec3, so you need to multiply the index by 3. Similarly, there are two texture
+				coordinate components per entry. The offsets of 0, 1 and 2 are used to access the X, Y and Z components, or the U and V
+				components in the case of texture coordinates.
+				*/
+				vertex.pos = {attrib.vertices[3 * index.vertex_index + 0], attrib.vertices[3 * index.vertex_index + 1],
+					      attrib.vertices[3 * index.vertex_index + 2]
+				};
+				vertex.texCoord = {
+					attrib.texcoords[2 * index.texcoord_index + 0],
+					//obj format = bottom to top, vulkan = top to bottom so flip y coord
+					1.0f - attrib.texcoords[2 * index.texcoord_index + 1]
+				};
+				vertex.color = {1.0f, 1.0f, 1.0f};
+
+				vertices.push_back(vertex);
+				indices.push_back(indices.size());
+			}
+		}
 	}
 };
 

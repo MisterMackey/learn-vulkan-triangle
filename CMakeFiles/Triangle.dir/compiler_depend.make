@@ -314,6 +314,7 @@ CMakeFiles/Triangle.dir/main.cpp.o: main.cpp \
   /usr/include/c++/13.2.1/bits/cxxabi_forced.h \
   /usr/include/c++/13.2.1/bits/cxxabi_init_exception.h \
   /usr/include/c++/13.2.1/bits/enable_special_members.h \
+  /usr/include/c++/13.2.1/bits/erase_if.h \
   /usr/include/c++/13.2.1/bits/exception.h \
   /usr/include/c++/13.2.1/bits/exception_defines.h \
   /usr/include/c++/13.2.1/bits/exception_ptr.h \
@@ -334,6 +335,7 @@ CMakeFiles/Triangle.dir/main.cpp.o: main.cpp \
   /usr/include/c++/13.2.1/bits/move.h \
   /usr/include/c++/13.2.1/bits/nested_exception.h \
   /usr/include/c++/13.2.1/bits/new_allocator.h \
+  /usr/include/c++/13.2.1/bits/node_handle.h \
   /usr/include/c++/13.2.1/bits/ostream.tcc \
   /usr/include/c++/13.2.1/bits/ostream_insert.h \
   /usr/include/c++/13.2.1/bits/parse_numbers.h \
@@ -344,6 +346,7 @@ CMakeFiles/Triangle.dir/main.cpp.o: main.cpp \
   /usr/include/c++/13.2.1/bits/refwrap.h \
   /usr/include/c++/13.2.1/bits/requires_hosted.h \
   /usr/include/c++/13.2.1/bits/specfun.h \
+  /usr/include/c++/13.2.1/bits/sstream.tcc \
   /usr/include/c++/13.2.1/bits/std_abs.h \
   /usr/include/c++/13.2.1/bits/stl_algo.h \
   /usr/include/c++/13.2.1/bits/stl_algobase.h \
@@ -354,8 +357,12 @@ CMakeFiles/Triangle.dir/main.cpp.o: main.cpp \
   /usr/include/c++/13.2.1/bits/stl_iterator.h \
   /usr/include/c++/13.2.1/bits/stl_iterator_base_funcs.h \
   /usr/include/c++/13.2.1/bits/stl_iterator_base_types.h \
+  /usr/include/c++/13.2.1/bits/stl_map.h \
+  /usr/include/c++/13.2.1/bits/stl_multimap.h \
   /usr/include/c++/13.2.1/bits/stl_pair.h \
+  /usr/include/c++/13.2.1/bits/stl_relops.h \
   /usr/include/c++/13.2.1/bits/stl_tempbuf.h \
+  /usr/include/c++/13.2.1/bits/stl_tree.h \
   /usr/include/c++/13.2.1/bits/stl_uninitialized.h \
   /usr/include/c++/13.2.1/bits/stl_vector.h \
   /usr/include/c++/13.2.1/bits/streambuf.tcc \
@@ -380,12 +387,14 @@ CMakeFiles/Triangle.dir/main.cpp.o: main.cpp \
   /usr/include/c++/13.2.1/cstdint \
   /usr/include/c++/13.2.1/cstdio \
   /usr/include/c++/13.2.1/cstdlib \
+  /usr/include/c++/13.2.1/cstring \
   /usr/include/c++/13.2.1/ctime \
   /usr/include/c++/13.2.1/cwchar \
   /usr/include/c++/13.2.1/cwctype \
   /usr/include/c++/13.2.1/debug/assertions.h \
   /usr/include/c++/13.2.1/debug/debug.h \
   /usr/include/c++/13.2.1/exception \
+  /usr/include/c++/13.2.1/ext/aligned_buffer.h \
   /usr/include/c++/13.2.1/ext/alloc_traits.h \
   /usr/include/c++/13.2.1/ext/atomicity.h \
   /usr/include/c++/13.2.1/ext/numeric_traits.h \
@@ -398,6 +407,7 @@ CMakeFiles/Triangle.dir/main.cpp.o: main.cpp \
   /usr/include/c++/13.2.1/iostream \
   /usr/include/c++/13.2.1/istream \
   /usr/include/c++/13.2.1/limits \
+  /usr/include/c++/13.2.1/map \
   /usr/include/c++/13.2.1/math.h \
   /usr/include/c++/13.2.1/new \
   /usr/include/c++/13.2.1/optional \
@@ -406,6 +416,7 @@ CMakeFiles/Triangle.dir/main.cpp.o: main.cpp \
   /usr/include/c++/13.2.1/pstl/glue_algorithm_defs.h \
   /usr/include/c++/13.2.1/pstl/pstl_config.h \
   /usr/include/c++/13.2.1/ratio \
+  /usr/include/c++/13.2.1/sstream \
   /usr/include/c++/13.2.1/stdexcept \
   /usr/include/c++/13.2.1/stdlib.h \
   /usr/include/c++/13.2.1/streambuf \
@@ -427,6 +438,7 @@ CMakeFiles/Triangle.dir/main.cpp.o: main.cpp \
   /usr/include/c++/13.2.1/tuple \
   /usr/include/c++/13.2.1/type_traits \
   /usr/include/c++/13.2.1/typeinfo \
+  /usr/include/c++/13.2.1/utility \
   /usr/include/c++/13.2.1/vector \
   /usr/include/c++/13.2.1/x86_64-pc-linux-gnu/bits/atomic_word.h \
   /usr/include/c++/13.2.1/x86_64-pc-linux-gnu/bits/basic_file.h \
@@ -612,6 +624,7 @@ CMakeFiles/Triangle.dir/main.cpp.o: main.cpp \
   /usr/include/sys/single_threaded.h \
   /usr/include/sys/types.h \
   /usr/include/time.h \
+  /usr/include/tiny_obj_loader.h \
   /usr/include/vk_video/vulkan_video_codec_h264std.h \
   /usr/include/vk_video/vulkan_video_codec_h264std_decode.h \
   /usr/include/vk_video/vulkan_video_codec_h265std.h \
@@ -1231,6 +1244,8 @@ p_device.cpp:
 
 /usr/lib/gcc/x86_64-pc-linux-gnu/13.2.1/include/mm_malloc.h:
 
+/usr/include/tiny_obj_loader.h:
+
 /usr/include/string.h:
 
 /usr/include/stb/stb_image.h:
@@ -1311,15 +1326,9 @@ p_device.cpp:
 
 /usr/include/glm/ext/matrix_projection.inl:
 
-/usr/include/glm/ext/matrix_projection.hpp:
-
 /usr/include/glm/ext/matrix_float4x4_precision.hpp:
 
 /usr/include/glm/ext/matrix_float4x3_precision.hpp:
-
-/usr/include/c++/13.2.1/bits/node_handle.h:
-
-/usr/include/glm/ext/matrix_float4x3.hpp:
 
 /usr/include/glm/ext/vector_double4.hpp:
 
@@ -1415,10 +1424,6 @@ p_device.cpp:
 
 /usr/include/glm/detail/func_packing.inl:
 
-/usr/include/c++/13.2.1/bits/erase_if.h:
-
-/usr/include/glm/detail/func_common.inl:
-
 /usr/include/strings.h:
 
 /usr/include/glm/detail/compute_common.hpp:
@@ -1431,9 +1436,9 @@ p_device.cpp:
 
 /usr/include/glm/common.hpp:
 
-/usr/include/c++/13.2.1/x86_64-pc-linux-gnu/bits/c++io.h:
-
 /usr/include/c++/13.2.1/x86_64-pc-linux-gnu/bits/basic_file.h:
+
+/usr/include/c++/13.2.1/utility:
 
 /usr/include/glm/ext/vector_bool4.hpp:
 
@@ -1457,9 +1462,21 @@ p_device.cpp:
 
 /usr/include/c++/13.2.1/tr1/exp_integral.tcc:
 
-/usr/include/c++/13.2.1/ext/aligned_buffer.h:
+/usr/include/c++/13.2.1/tr1/bessel_function.tcc:
 
-/usr/include/c++/13.2.1/tr1/beta_function.tcc:
+/usr/include/c++/13.2.1/stdlib.h:
+
+/usr/include/glm/glm.hpp:
+
+/usr/include/c++/13.2.1/pstl/glue_algorithm_defs.h:
+
+/usr/include/c++/13.2.1/optional:
+
+/usr/include/c++/13.2.1/math.h:
+
+/usr/include/c++/13.2.1/map:
+
+/usr/include/c++/13.2.1/limits:
 
 /usr/include/c++/13.2.1/cctype:
 
@@ -1497,6 +1514,10 @@ p_device.cpp:
 
 /usr/include/c++/13.2.1/bits/postypes.h:
 
+/usr/include/glm/detail/func_common.inl:
+
+/usr/include/c++/13.2.1/bits/erase_if.h:
+
 /usr/include/glm/ext/matrix_double2x4.hpp:
 
 /usr/include/c++/13.2.1/bits/stl_construct.h:
@@ -1511,7 +1532,9 @@ p_device.cpp:
 
 /usr/include/c++/13.2.1/bits/vector.tcc:
 
-/usr/include/c++/13.2.1/stdlib.h:
+/usr/include/glm/ext/matrix_projection.hpp:
+
+/usr/include/c++/13.2.1/cstring:
 
 /usr/include/c++/13.2.1/bits/predefined_ops.h:
 
@@ -1593,8 +1616,6 @@ p_device.cpp:
 
 /usr/include/bits/byteswap.h:
 
-/usr/include/c++/13.2.1/backward/binders.h:
-
 /usr/include/c++/13.2.1/bits/locale_classes.h:
 
 /usr/include/c++/13.2.1/bits/stl_pair.h:
@@ -1625,8 +1646,6 @@ p_device.cpp:
 
 /usr/include/bits/types/__fpos64_t.h:
 
-/usr/include/c++/13.2.1/limits:
-
 /usr/include/bits/pthread_stack_min-dynamic.h:
 
 /usr/include/bits/timex.h:
@@ -1651,6 +1670,8 @@ debugshit.cpp:
 
 /usr/include/bits/atomic_wide_counter.h:
 
+/usr/include/c++/13.2.1/bits/sstream.tcc:
+
 /usr/include/c++/13.2.1/string_view:
 
 /usr/include/c++/13.2.1/bits/stl_uninitialized.h:
@@ -1666,6 +1687,12 @@ debugshit.hpp:
 /usr/include/bits/waitflags.h:
 
 /usr/include/ctype.h:
+
+/usr/include/c++/13.2.1/ratio:
+
+/usr/include/c++/13.2.1/bits/hash_bytes.h:
+
+/usr/include/bits/types/struct_sched_param.h:
 
 /usr/include/GL/glext.h:
 
@@ -1705,8 +1732,6 @@ debugshit.hpp:
 
 /usr/include/c++/13.2.1/cerrno:
 
-/usr/include/c++/13.2.1/math.h:
-
 /usr/include/bits/types/struct_itimerspec.h:
 
 /usr/include/bits/struct_rwlock.h:
@@ -1731,14 +1756,6 @@ debugshit.hpp:
 
 /usr/include/bits/long-double.h:
 
-/usr/include/c++/13.2.1/bits/stl_tree.h:
-
-/usr/include/glm/ext/vector_double2_precision.hpp:
-
-/usr/include/c++/13.2.1/bits/charconv.h:
-
-/usr/include/bits/uintn-identity.h:
-
 /usr/include/bits/cpu-set.h:
 
 /usr/include/glm/ext/matrix_double4x3_precision.hpp:
@@ -1759,13 +1776,15 @@ debugshit.hpp:
 
 /usr/include/c++/13.2.1/bits/new_allocator.h:
 
+/usr/include/c++/13.2.1/pstl/execution_defs.h:
+
+stb_linking.hpp:
+
 /usr/include/glm/ext/matrix_float2x3_precision.hpp:
 
 /usr/include/c++/13.2.1/bits/basic_string.tcc:
 
 /usr/include/bits/posix2_lim.h:
-
-/usr/include/c++/13.2.1/tr1/bessel_function.tcc:
 
 /usr/include/bits/thread-shared-types.h:
 
@@ -1773,9 +1792,9 @@ debugshit.hpp:
 
 /usr/include/c++/13.2.1/cfloat:
 
-stb_linking.hpp:
+/usr/include/c++/13.2.1/x86_64-pc-linux-gnu/bits/c++io.h:
 
-/usr/include/c++/13.2.1/pstl/execution_defs.h:
+/usr/include/c++/13.2.1/bits/stl_relops.h:
 
 /usr/include/bits/types/error_t.h:
 
@@ -1813,6 +1832,10 @@ stb_linking.hpp:
 
 /usr/include/bits/sched.h:
 
+/usr/include/glm/ext/matrix_float4x3.hpp:
+
+/usr/include/c++/13.2.1/bits/node_handle.h:
+
 /usr/include/bits/types/cookie_io_functions_t.h:
 
 /usr/include/glm/ext/vector_int2_sized.hpp:
@@ -1835,6 +1858,10 @@ stb_linking.hpp:
 
 /usr/include/c++/13.2.1/bits/ostream_insert.h:
 
+/usr/include/c++/13.2.1/fstream:
+
+/usr/include/c++/13.2.1/string:
+
 /usr/include/bits/types/struct_timeval.h:
 
 /usr/include/c++/13.2.1/cstdlib:
@@ -1846,10 +1873,6 @@ stb_linking.hpp:
 /usr/include/sys/types.h:
 
 /usr/include/c++/13.2.1/cwchar:
-
-/usr/include/glm/glm.hpp:
-
-/usr/include/c++/13.2.1/pstl/glue_algorithm_defs.h:
 
 /usr/include/c++/13.2.1/exception:
 
@@ -1889,6 +1912,18 @@ stb_linking.hpp:
 
 /usr/include/bits/mathcalls-narrow.h:
 
+/usr/include/c++/13.2.1/backward/binders.h:
+
+/usr/include/c++/13.2.1/bits/stl_multimap.h:
+
+/usr/include/glm/ext/vector_double2_precision.hpp:
+
+/usr/include/c++/13.2.1/bits/charconv.h:
+
+/usr/include/bits/uintn-identity.h:
+
+/usr/include/c++/13.2.1/bits/stl_tree.h:
+
 /usr/include/c++/13.2.1/streambuf:
 
 /usr/include/c++/13.2.1/x86_64-pc-linux-gnu/bits/c++allocator.h:
@@ -1898,10 +1933,6 @@ stb_linking.hpp:
 /usr/include/c++/13.2.1/x86_64-pc-linux-gnu/bits/c++config.h:
 
 /usr/include/c++/13.2.1/x86_64-pc-linux-gnu/bits/c++locale.h:
-
-/usr/include/c++/13.2.1/string:
-
-/usr/include/c++/13.2.1/fstream:
 
 /usr/include/glm/ext/vector_int2.hpp:
 
@@ -1954,6 +1985,8 @@ shaderLoading.hpp:
 /usr/include/sys/select.h:
 
 /usr/include/sys/single_threaded.h:
+
+/usr/include/c++/13.2.1/sstream:
 
 /usr/include/time.h:
 
@@ -2065,6 +2098,8 @@ requirement.hpp:
 
 /usr/include/c++/13.2.1/bits/stl_heap.h:
 
+/usr/include/c++/13.2.1/bits/stl_map.h:
+
 /usr/include/c++/13.2.1/bits/stl_tempbuf.h:
 
 /usr/include/c++/13.2.1/bits/locale_classes.tcc:
@@ -2081,14 +2116,10 @@ requirement.hpp:
 
 /usr/include/c++/13.2.1/cstdint:
 
-/usr/include/c++/13.2.1/optional:
-
 /usr/include/glm/ext/vector_bool2_precision.hpp:
 
 /usr/include/c++/13.2.1/ctime:
 
-/usr/include/c++/13.2.1/bits/hash_bytes.h:
+/usr/include/c++/13.2.1/tr1/beta_function.tcc:
 
-/usr/include/bits/types/struct_sched_param.h:
-
-/usr/include/c++/13.2.1/ratio:
+/usr/include/c++/13.2.1/ext/aligned_buffer.h:
