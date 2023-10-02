@@ -1,7 +1,9 @@
 #include <cstddef>
 #include <cstdint>
 #include <exception>
+#include <glm/fwd.hpp>
 #include <sys/types.h>
+#include <unordered_map>
 #include <vulkan/vk_platform.h>
 #include <vulkan/vulkan_core.h>
 // below define and include tells the included header to also include vulkan deps
@@ -25,9 +27,11 @@
 // glm uses depth range -1 to 1, we want 0 to 1 to coincide with vulkan expectation
 #define GLM_FORCE_DEPTH_ZERO_TO_ONE
 #include "stb_linking.hpp"
+#define GLM_ENABLE_EXPERIMENTAL
 #include <chrono>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtx/hash.hpp>
 
 #define TINYOBJLOADER_IMPLEMENTATION
 #include <tiny_obj_loader.h>
@@ -71,7 +75,19 @@ struct Vertex {
 		attributedescriptions[2].offset = offsetof(Vertex, texCoord);
 		return attributedescriptions;
 	}
+
+	bool operator==(const Vertex &other) const { return pos == other.pos && color == other.color && texCoord == other.texCoord; }
 };
+
+namespace std
+{
+template <> struct hash<Vertex> {
+	size_t operator()(Vertex const &vertex) const
+	{
+		return ((hash<glm::vec3>()(vertex.pos) ^ (hash<glm::vec3>()(vertex.color) << 1)) >> 1) ^ (hash<glm::vec2>()(vertex.texCoord) << 1);
+	}
+};
+} // namespace std
 
 struct UniformBufferObject {
 	// be explicit abt alignments, it needs to match the vulkan spec once it goes to the shader
@@ -1235,6 +1251,7 @@ class TriangleApp
 			throw std::runtime_error(warn + err);
 		}
 
+		std::unordered_map<Vertex, uint32_t> uniqueVertices = {};
 		for (const auto &shape : shapes) {
 			for (const auto &index : shape.mesh.indices) {
 				Vertex vertex{};
@@ -1249,17 +1266,17 @@ class TriangleApp
 				components in the case of texture coordinates.
 				*/
 				vertex.pos = {attrib.vertices[3 * index.vertex_index + 0], attrib.vertices[3 * index.vertex_index + 1],
-					      attrib.vertices[3 * index.vertex_index + 2]
-				};
-				vertex.texCoord = {
-					attrib.texcoords[2 * index.texcoord_index + 0],
-					//obj format = bottom to top, vulkan = top to bottom so flip y coord
-					1.0f - attrib.texcoords[2 * index.texcoord_index + 1]
-				};
+					      attrib.vertices[3 * index.vertex_index + 2]};
+				vertex.texCoord = {attrib.texcoords[2 * index.texcoord_index + 0],
+						   // obj format = bottom to top, vulkan = top to bottom so flip y coord
+						   1.0f - attrib.texcoords[2 * index.texcoord_index + 1]};
 				vertex.color = {1.0f, 1.0f, 1.0f};
 
-				vertices.push_back(vertex);
-				indices.push_back(indices.size());
+				if (uniqueVertices.count(vertex) == 0) {
+					uniqueVertices[vertex] = static_cast<uint32_t>(vertices.size());
+					vertices.push_back(vertex);
+				}
+				indices.push_back(uniqueVertices[vertex]);
 			}
 		}
 	}
