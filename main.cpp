@@ -152,6 +152,11 @@ class TriangleApp
 	std::vector<Vertex> vertices;
 	std::vector<uint32_t> indices;
 
+	VkSampleCountFlagBits msaaSamples = VK_SAMPLE_COUNT_1_BIT;
+	VkImage colorImage;
+	VkDeviceMemory colorImageMemory;
+	VkImageView colorImageView;
+
 	bool framebufferResized = false;
 
 	void initWindow(void)
@@ -176,6 +181,8 @@ class TriangleApp
 		p_device::pickPhysicalDevice(&physicalDevice, vkInstance, surface);
 		if (physicalDevice == VK_NULL_HANDLE)
 			throw std::runtime_error("failed to find a suitable GPU");
+		//different place for below call in the tutorial
+		msaaSamples = getMaxUsableSampleCount();
 		p_device::createLogicalDevice(&device, physicalDevice, &graphicsQueue, &presentQueue, surface);
 		trianglePresentation::createSwapchain(physicalDevice, device, surface, window, swapchainInfo);
 		createImageViews();
@@ -1017,7 +1024,7 @@ class TriangleApp
 		vkFreeMemory(device, stagingBufferMemory, nullptr);
 	}
 
-	void createImage(uint32_t width, uint32_t height, uint32_t mipLevels, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage,
+	void createImage(uint32_t width, uint32_t height, uint32_t mipLevels, VkSampleCountFlagBits numSamples, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage,
 			 VkMemoryPropertyFlags properties, VkImage &image, VkDeviceMemory &imageMemory)
 	{
 		VkImageCreateInfo imageInfo{};
@@ -1033,7 +1040,7 @@ class TriangleApp
 		imageInfo.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
 		imageInfo.usage = usage;
 		imageInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
-		imageInfo.samples = VK_SAMPLE_COUNT_1_BIT;
+		imageInfo.samples = numSamples;
 
 		if (vkCreateImage(device, &imageInfo, nullptr, &image) != VK_SUCCESS) {
 			throw std::runtime_error("Failed to create vk image for texture");
@@ -1357,6 +1364,22 @@ class TriangleApp
 				     &barrier);
 
 		endSingleTimeCommands(commandBuffer);
+	}
+
+	VkSampleCountFlagBits getMaxUsableSampleCount()
+	{
+		VkPhysicalDeviceProperties physicalDeviceProperties;
+		vkGetPhysicalDeviceProperties(physicalDevice, &physicalDeviceProperties);
+
+		VkSampleCountFlags counts = physicalDeviceProperties.limits.framebufferColorSampleCounts & physicalDeviceProperties.limits.framebufferDepthSampleCounts;
+		if (counts & VK_SAMPLE_COUNT_64_BIT) { return VK_SAMPLE_COUNT_64_BIT; }
+		if (counts & VK_SAMPLE_COUNT_32_BIT) { return VK_SAMPLE_COUNT_32_BIT; }
+		if (counts & VK_SAMPLE_COUNT_16_BIT) { return VK_SAMPLE_COUNT_16_BIT; }
+		if (counts & VK_SAMPLE_COUNT_8_BIT) { return VK_SAMPLE_COUNT_8_BIT; }
+		if (counts & VK_SAMPLE_COUNT_4_BIT) { return VK_SAMPLE_COUNT_4_BIT; }
+		if (counts & VK_SAMPLE_COUNT_2_BIT) { return VK_SAMPLE_COUNT_2_BIT; }
+
+		return VK_SAMPLE_COUNT_1_BIT;
 	}
 };
 
