@@ -322,6 +322,8 @@ CMakeFiles/Triangle.dir/main.cpp.o: main.cpp \
   /usr/include/c++/13.2.1/bits/functexcept.h \
   /usr/include/c++/13.2.1/bits/functional_hash.h \
   /usr/include/c++/13.2.1/bits/hash_bytes.h \
+  /usr/include/c++/13.2.1/bits/hashtable.h \
+  /usr/include/c++/13.2.1/bits/hashtable_policy.h \
   /usr/include/c++/13.2.1/bits/invoke.h \
   /usr/include/c++/13.2.1/bits/ios_base.h \
   /usr/include/c++/13.2.1/bits/istream.tcc \
@@ -348,6 +350,7 @@ CMakeFiles/Triangle.dir/main.cpp.o: main.cpp \
   /usr/include/c++/13.2.1/bits/specfun.h \
   /usr/include/c++/13.2.1/bits/sstream.tcc \
   /usr/include/c++/13.2.1/bits/std_abs.h \
+  /usr/include/c++/13.2.1/bits/std_function.h \
   /usr/include/c++/13.2.1/bits/stl_algo.h \
   /usr/include/c++/13.2.1/bits/stl_algobase.h \
   /usr/include/c++/13.2.1/bits/stl_bvector.h \
@@ -370,6 +373,7 @@ CMakeFiles/Triangle.dir/main.cpp.o: main.cpp \
   /usr/include/c++/13.2.1/bits/string_view.tcc \
   /usr/include/c++/13.2.1/bits/stringfwd.h \
   /usr/include/c++/13.2.1/bits/uniform_int_dist.h \
+  /usr/include/c++/13.2.1/bits/unordered_map.h \
   /usr/include/c++/13.2.1/bits/uses_allocator.h \
   /usr/include/c++/13.2.1/bits/uses_allocator_args.h \
   /usr/include/c++/13.2.1/bits/utility.h \
@@ -401,6 +405,7 @@ CMakeFiles/Triangle.dir/main.cpp.o: main.cpp \
   /usr/include/c++/13.2.1/ext/string_conversions.h \
   /usr/include/c++/13.2.1/ext/type_traits.h \
   /usr/include/c++/13.2.1/fstream \
+  /usr/include/c++/13.2.1/functional \
   /usr/include/c++/13.2.1/initializer_list \
   /usr/include/c++/13.2.1/ios \
   /usr/include/c++/13.2.1/iosfwd \
@@ -438,6 +443,7 @@ CMakeFiles/Triangle.dir/main.cpp.o: main.cpp \
   /usr/include/c++/13.2.1/tuple \
   /usr/include/c++/13.2.1/type_traits \
   /usr/include/c++/13.2.1/typeinfo \
+  /usr/include/c++/13.2.1/unordered_map \
   /usr/include/c++/13.2.1/utility \
   /usr/include/c++/13.2.1/vector \
   /usr/include/c++/13.2.1/x86_64-pc-linux-gnu/bits/atomic_word.h \
@@ -473,6 +479,7 @@ CMakeFiles/Triangle.dir/main.cpp.o: main.cpp \
   /usr/include/glm/detail/func_vector_relational.inl \
   /usr/include/glm/detail/qualifier.hpp \
   /usr/include/glm/detail/setup.hpp \
+  /usr/include/glm/detail/type_float.hpp \
   /usr/include/glm/detail/type_half.hpp \
   /usr/include/glm/detail/type_half.inl \
   /usr/include/glm/detail/type_mat2x2.hpp \
@@ -493,6 +500,8 @@ CMakeFiles/Triangle.dir/main.cpp.o: main.cpp \
   /usr/include/glm/detail/type_mat4x3.inl \
   /usr/include/glm/detail/type_mat4x4.hpp \
   /usr/include/glm/detail/type_mat4x4.inl \
+  /usr/include/glm/detail/type_quat.hpp \
+  /usr/include/glm/detail/type_quat.inl \
   /usr/include/glm/detail/type_vec1.hpp \
   /usr/include/glm/detail/type_vec1.inl \
   /usr/include/glm/detail/type_vec2.hpp \
@@ -544,34 +553,60 @@ CMakeFiles/Triangle.dir/main.cpp.o: main.cpp \
   /usr/include/glm/ext/matrix_projection.inl \
   /usr/include/glm/ext/matrix_transform.hpp \
   /usr/include/glm/ext/matrix_transform.inl \
+  /usr/include/glm/ext/quaternion_common.hpp \
+  /usr/include/glm/ext/quaternion_common.inl \
+  /usr/include/glm/ext/quaternion_double.hpp \
+  /usr/include/glm/ext/quaternion_double_precision.hpp \
+  /usr/include/glm/ext/quaternion_float.hpp \
+  /usr/include/glm/ext/quaternion_float_precision.hpp \
+  /usr/include/glm/ext/quaternion_geometric.hpp \
+  /usr/include/glm/ext/quaternion_geometric.inl \
+  /usr/include/glm/ext/quaternion_relational.hpp \
+  /usr/include/glm/ext/quaternion_relational.inl \
+  /usr/include/glm/ext/quaternion_transform.hpp \
+  /usr/include/glm/ext/quaternion_transform.inl \
+  /usr/include/glm/ext/quaternion_trigonometric.hpp \
+  /usr/include/glm/ext/quaternion_trigonometric.inl \
   /usr/include/glm/ext/scalar_constants.hpp \
   /usr/include/glm/ext/scalar_constants.inl \
   /usr/include/glm/ext/scalar_int_sized.hpp \
   /usr/include/glm/ext/scalar_uint_sized.hpp \
+  /usr/include/glm/ext/vector_bool1.hpp \
+  /usr/include/glm/ext/vector_bool1_precision.hpp \
   /usr/include/glm/ext/vector_bool2.hpp \
   /usr/include/glm/ext/vector_bool2_precision.hpp \
   /usr/include/glm/ext/vector_bool3.hpp \
   /usr/include/glm/ext/vector_bool3_precision.hpp \
   /usr/include/glm/ext/vector_bool4.hpp \
   /usr/include/glm/ext/vector_bool4_precision.hpp \
+  /usr/include/glm/ext/vector_double1.hpp \
+  /usr/include/glm/ext/vector_double1_precision.hpp \
   /usr/include/glm/ext/vector_double2.hpp \
   /usr/include/glm/ext/vector_double2_precision.hpp \
   /usr/include/glm/ext/vector_double3.hpp \
   /usr/include/glm/ext/vector_double3_precision.hpp \
   /usr/include/glm/ext/vector_double4.hpp \
   /usr/include/glm/ext/vector_double4_precision.hpp \
+  /usr/include/glm/ext/vector_float1.hpp \
+  /usr/include/glm/ext/vector_float1_precision.hpp \
   /usr/include/glm/ext/vector_float2.hpp \
   /usr/include/glm/ext/vector_float2_precision.hpp \
   /usr/include/glm/ext/vector_float3.hpp \
   /usr/include/glm/ext/vector_float3_precision.hpp \
   /usr/include/glm/ext/vector_float4.hpp \
   /usr/include/glm/ext/vector_float4_precision.hpp \
+  /usr/include/glm/ext/vector_int1.hpp \
+  /usr/include/glm/ext/vector_int1_sized.hpp \
   /usr/include/glm/ext/vector_int2.hpp \
   /usr/include/glm/ext/vector_int2_sized.hpp \
   /usr/include/glm/ext/vector_int3.hpp \
   /usr/include/glm/ext/vector_int3_sized.hpp \
   /usr/include/glm/ext/vector_int4.hpp \
   /usr/include/glm/ext/vector_int4_sized.hpp \
+  /usr/include/glm/ext/vector_relational.hpp \
+  /usr/include/glm/ext/vector_relational.inl \
+  /usr/include/glm/ext/vector_uint1.hpp \
+  /usr/include/glm/ext/vector_uint1_sized.hpp \
   /usr/include/glm/ext/vector_uint2.hpp \
   /usr/include/glm/ext/vector_uint2_sized.hpp \
   /usr/include/glm/ext/vector_uint3.hpp \
@@ -583,8 +618,17 @@ CMakeFiles/Triangle.dir/main.cpp.o: main.cpp \
   /usr/include/glm/glm.hpp \
   /usr/include/glm/gtc/constants.hpp \
   /usr/include/glm/gtc/constants.inl \
+  /usr/include/glm/gtc/epsilon.hpp \
+  /usr/include/glm/gtc/epsilon.inl \
   /usr/include/glm/gtc/matrix_transform.hpp \
   /usr/include/glm/gtc/matrix_transform.inl \
+  /usr/include/glm/gtc/quaternion.hpp \
+  /usr/include/glm/gtc/quaternion.inl \
+  /usr/include/glm/gtc/vec1.hpp \
+  /usr/include/glm/gtx/dual_quaternion.hpp \
+  /usr/include/glm/gtx/dual_quaternion.inl \
+  /usr/include/glm/gtx/hash.hpp \
+  /usr/include/glm/gtx/hash.inl \
   /usr/include/glm/integer.hpp \
   /usr/include/glm/mat2x2.hpp \
   /usr/include/glm/mat2x3.hpp \
@@ -1248,8 +1292,6 @@ p_device.cpp:
 
 /usr/include/string.h:
 
-/usr/include/stb/stb_image.h:
-
 /usr/include/linux/limits.h:
 
 /usr/include/limits.h:
@@ -1257,8 +1299,6 @@ p_device.cpp:
 /usr/include/glm/vec2.hpp:
 
 /usr/include/glm/trigonometric.hpp:
-
-/usr/include/glm/mat4x4.hpp:
 
 /usr/include/glm/mat4x3.hpp:
 
@@ -1274,9 +1314,15 @@ p_device.cpp:
 
 /usr/include/glm/mat2x2.hpp:
 
+/usr/include/glm/gtc/vec1.hpp:
+
+/usr/include/glm/gtc/quaternion.hpp:
+
 /usr/include/glm/simd/platform.h:
 
 /usr/include/glm/gtc/matrix_transform.hpp:
+
+/usr/include/glm/gtc/epsilon.inl:
 
 /usr/include/glm/gtc/constants.inl:
 
@@ -1288,7 +1334,11 @@ p_device.cpp:
 
 /usr/include/glm/ext/vector_uint2_sized.hpp:
 
+/usr/include/glm/ext/vector_uint1.hpp:
+
 /usr/include/glm/ext/vector_int4.hpp:
+
+/usr/include/glm/ext/vector_int1.hpp:
 
 /usr/include/glm/ext/vector_float4_precision.hpp:
 
@@ -1298,13 +1348,15 @@ p_device.cpp:
 
 /usr/include/glm/ext/vector_float3.hpp:
 
+/usr/include/glm/gtx/hash.hpp:
+
+/usr/include/glm/ext/vector_relational.hpp:
+
 /usr/include/glm/ext/vector_float2_precision.hpp:
 
+/usr/include/glm/ext/vector_float1_precision.hpp:
+
 /usr/include/glm/ext/vector_double4_precision.hpp:
-
-/usr/include/glm/ext/vector_double3_precision.hpp:
-
-/usr/include/glm/ext/vector_double3.hpp:
 
 /usr/include/glm/ext/vector_double2.hpp:
 
@@ -1324,6 +1376,28 @@ p_device.cpp:
 
 /usr/include/glm/ext/scalar_constants.hpp:
 
+/usr/include/glm/ext/quaternion_trigonometric.inl:
+
+/usr/include/glm/ext/quaternion_transform.hpp:
+
+/usr/include/glm/ext/quaternion_relational.inl:
+
+/usr/include/glm/ext/quaternion_geometric.inl:
+
+/usr/include/glm/ext/vector_double3.hpp:
+
+/usr/include/glm/ext/quaternion_float_precision.hpp:
+
+/usr/include/glm/mat4x4.hpp:
+
+/usr/include/glm/ext/quaternion_float.hpp:
+
+/usr/include/glm/ext/quaternion_double_precision.hpp:
+
+/usr/include/glm/ext/vector_double3_precision.hpp:
+
+/usr/include/glm/ext/quaternion_common.hpp:
+
 /usr/include/glm/ext/matrix_projection.inl:
 
 /usr/include/glm/ext/matrix_float4x4_precision.hpp:
@@ -1337,6 +1411,8 @@ p_device.cpp:
 /usr/include/glm/ext/matrix_float4x2.hpp:
 
 /usr/include/glm/ext/matrix_float3x4_precision.hpp:
+
+/usr/include/glm/ext/quaternion_geometric.hpp:
 
 /usr/include/glm/ext/matrix_float3x4.hpp:
 
@@ -1352,9 +1428,13 @@ p_device.cpp:
 
 /usr/include/glm/ext/matrix_float2x4.hpp:
 
+/usr/include/glm/gtx/hash.inl:
+
 /usr/include/glm/ext/matrix_float2x3.hpp:
 
 /usr/include/glm/ext/matrix_float2x2.hpp:
+
+/usr/include/glm/ext/quaternion_common.inl:
 
 /usr/include/glm/ext/matrix_double4x4_precision.hpp:
 
@@ -1408,6 +1488,8 @@ p_device.cpp:
 
 /usr/include/glm/detail/type_half.inl:
 
+/usr/include/glm/gtx/dual_quaternion.hpp:
+
 /usr/include/glm/detail/type_half.hpp:
 
 /usr/include/glm/ext/matrix_clip_space.inl:
@@ -1439,6 +1521,12 @@ p_device.cpp:
 /usr/include/c++/13.2.1/x86_64-pc-linux-gnu/bits/basic_file.h:
 
 /usr/include/c++/13.2.1/utility:
+
+/usr/include/stb/stb_image.h:
+
+/usr/include/glm/ext/vector_bool1.hpp:
+
+/usr/include/c++/13.2.1/unordered_map:
 
 /usr/include/glm/ext/vector_bool4.hpp:
 
@@ -1478,9 +1566,29 @@ p_device.cpp:
 
 /usr/include/c++/13.2.1/limits:
 
+/usr/include/c++/13.2.1/functional:
+
+/usr/include/c++/13.2.1/tr1/beta_function.tcc:
+
+/usr/include/c++/13.2.1/ext/aligned_buffer.h:
+
+/usr/include/glm/ext/vector_bool2_precision.hpp:
+
+/usr/include/c++/13.2.1/ctime:
+
+/usr/include/glm/ext/matrix_projection.hpp:
+
+/usr/include/c++/13.2.1/cstring:
+
+/usr/include/glm/packing.hpp:
+
+/usr/include/c++/13.2.1/cstdint:
+
 /usr/include/c++/13.2.1/cctype:
 
 /usr/include/glm/vec4.hpp:
+
+/usr/include/glm/ext/quaternion_relational.hpp:
 
 /usr/include/glm/ext/matrix_double2x4_precision.hpp:
 
@@ -1494,6 +1602,8 @@ p_device.cpp:
 
 /usr/include/c++/13.2.1/bits/fstream.tcc:
 
+/usr/include/glm/detail/type_quat.hpp:
+
 /usr/include/c++/13.2.1/bits/stringfwd.h:
 
 /usr/include/glm/detail/type_vec4.inl:
@@ -1501,6 +1611,8 @@ p_device.cpp:
 /usr/include/c++/13.2.1/bits/string_view.tcc:
 
 /usr/lib/gcc/x86_64-pc-linux-gnu/13.2.1/include/float.h:
+
+/usr/include/glm/ext/vector_bool1_precision.hpp:
 
 /usr/include/bits/pthreadtypes.h:
 
@@ -1531,10 +1643,6 @@ p_device.cpp:
 /usr/include/glm/ext/matrix_double4x2_precision.hpp:
 
 /usr/include/c++/13.2.1/bits/vector.tcc:
-
-/usr/include/glm/ext/matrix_projection.hpp:
-
-/usr/include/c++/13.2.1/cstring:
 
 /usr/include/c++/13.2.1/bits/predefined_ops.h:
 
@@ -1578,6 +1686,8 @@ p_device.cpp:
 
 /usr/include/GL/gl.h:
 
+/usr/include/glm/ext/vector_double1.hpp:
+
 /usr/include/c++/13.2.1/bits/exception_ptr.h:
 
 /usr/include/glm/ext/vector_uint2.hpp:
@@ -1587,6 +1697,8 @@ p_device.cpp:
 /usr/include/c++/13.2.1/bits/invoke.h:
 
 /usr/include/c++/13.2.1/x86_64-pc-linux-gnu/bits/gthr.h:
+
+/usr/include/glm/ext/quaternion_transform.inl:
 
 /usr/include/c++/13.2.1/cmath:
 
@@ -1608,7 +1720,11 @@ p_device.cpp:
 
 /usr/include/bits/types/struct_tm.h:
 
+/usr/include/glm/ext/vector_int1_sized.hpp:
+
 /usr/include/c++/13.2.1/bit:
+
+/usr/include/glm/ext/vector_float1.hpp:
 
 /usr/include/bits/wctype-wchar.h:
 
@@ -1694,11 +1810,15 @@ debugshit.hpp:
 
 /usr/include/bits/types/struct_sched_param.h:
 
+/usr/include/glm/ext/quaternion_trigonometric.hpp:
+
 /usr/include/GL/glext.h:
 
 /usr/include/asm-generic/errno.h:
 
 /usr/include/bits/fp-logb.h:
+
+/usr/include/c++/13.2.1/bits/hashtable_policy.h:
 
 /usr/include/bits/types/__fpos_t.h:
 
@@ -1790,6 +1910,8 @@ stb_linking.hpp:
 
 /usr/include/bits/endian.h:
 
+/usr/include/glm/gtx/dual_quaternion.inl:
+
 /usr/include/c++/13.2.1/cfloat:
 
 /usr/include/c++/13.2.1/x86_64-pc-linux-gnu/bits/c++io.h:
@@ -1844,6 +1966,8 @@ stb_linking.hpp:
 
 /usr/include/c++/13.2.1/bits/stl_function.h:
 
+/usr/include/glm/ext/vector_uint1_sized.hpp:
+
 /usr/include/glm/ext/vector_float2.hpp:
 
 /usr/include/c++/13.2.1/bits/exception_defines.h:
@@ -1853,6 +1977,8 @@ stb_linking.hpp:
 /usr/include/c++/13.2.1/bits/algorithmfwd.h:
 
 /usr/include/bits/types/struct_timespec.h:
+
+/usr/include/glm/ext/quaternion_double.hpp:
 
 /usr/include/c++/13.2.1/bits/refwrap.h:
 
@@ -1866,6 +1992,8 @@ stb_linking.hpp:
 
 /usr/include/c++/13.2.1/cstdlib:
 
+/usr/include/glm/ext/vector_relational.inl:
+
 /usr/include/c++/13.2.1/iosfwd:
 
 /usr/include/c++/13.2.1/bits/codecvt.h:
@@ -1877,6 +2005,8 @@ stb_linking.hpp:
 /usr/include/c++/13.2.1/exception:
 
 /usr/include/c++/13.2.1/ext/atomicity.h:
+
+/usr/include/c++/13.2.1/bits/hashtable.h:
 
 /usr/include/bits/types/clockid_t.h:
 
@@ -1960,7 +2090,11 @@ stb_linking.hpp:
 
 /usr/include/locale.h:
 
+/usr/include/glm/gtc/quaternion.inl:
+
 /usr/include/pthread.h:
+
+/usr/include/glm/gtc/epsilon.hpp:
 
 /usr/include/glm/ext/matrix_float2x2_precision.hpp:
 
@@ -1996,6 +2130,8 @@ shaderLoading.hpp:
 
 /usr/include/glm/ext/vector_int3.hpp:
 
+/usr/include/glm/ext/vector_double1_precision.hpp:
+
 /usr/include/c++/13.2.1/bits/uniform_int_dist.h:
 
 /usr/include/vk_video/vulkan_video_codec_h265std_decode.h:
@@ -2018,6 +2154,8 @@ shaderLoading.hpp:
 
 main.cpp:
 
+/usr/include/glm/detail/type_quat.inl:
+
 /usr/include/features-time64.h:
 
 p_device.hpp:
@@ -2025,6 +2163,8 @@ p_device.hpp:
 presentation.hpp:
 
 /usr/include/glm/vector_relational.hpp:
+
+/usr/include/glm/detail/type_float.hpp:
 
 requirement.hpp:
 
@@ -2051,12 +2191,6 @@ requirement.hpp:
 /usr/include/bits/mathcalls-helper-functions.h:
 
 /usr/include/c++/13.2.1/algorithm:
-
-/usr/include/glm/mat3x2.hpp:
-
-/usr/include/wchar.h:
-
-/usr/include/bits/posix1_lim.h:
 
 /usr/include/c++/13.2.1/bits/functexcept.h:
 
@@ -2086,6 +2220,14 @@ requirement.hpp:
 
 /usr/include/c++/13.2.1/bits/specfun.h:
 
+/usr/include/glm/mat3x2.hpp:
+
+/usr/include/wchar.h:
+
+/usr/include/bits/posix1_lim.h:
+
+/usr/include/c++/13.2.1/bits/std_function.h:
+
 /usr/include/c++/13.2.1/bits/stl_algo.h:
 
 /usr/include/bits/wordsize.h:
@@ -2102,6 +2244,8 @@ requirement.hpp:
 
 /usr/include/c++/13.2.1/bits/stl_tempbuf.h:
 
+/usr/include/c++/13.2.1/bits/unordered_map.h:
+
 /usr/include/c++/13.2.1/bits/locale_classes.tcc:
 
 /usr/include/vk_video/vulkan_video_codec_h264std.h:
@@ -2111,15 +2255,3 @@ requirement.hpp:
 /usr/lib/gcc/x86_64-pc-linux-gnu/13.2.1/include/emmintrin.h:
 
 /usr/include/c++/13.2.1/climits:
-
-/usr/include/glm/packing.hpp:
-
-/usr/include/c++/13.2.1/cstdint:
-
-/usr/include/glm/ext/vector_bool2_precision.hpp:
-
-/usr/include/c++/13.2.1/ctime:
-
-/usr/include/c++/13.2.1/tr1/beta_function.tcc:
-
-/usr/include/c++/13.2.1/ext/aligned_buffer.h:
