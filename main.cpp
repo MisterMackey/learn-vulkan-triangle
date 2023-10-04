@@ -192,6 +192,7 @@ class TriangleApp
 		createDescriptorSetLayout();
 		createGraphicsPipeline();
 		createCommandPools();
+		createColorResources();
 		createDepthResources();
 		createFramebuffers();
 		createTextureImage();
@@ -389,7 +390,7 @@ class TriangleApp
 		VkPipelineMultisampleStateCreateInfo multisampingCreateInfo{};
 		multisampingCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO;
 		multisampingCreateInfo.sampleShadingEnable = VK_FALSE;
-		multisampingCreateInfo.rasterizationSamples = VK_SAMPLE_COUNT_1_BIT;
+		multisampingCreateInfo.rasterizationSamples = msaaSamples;
 		multisampingCreateInfo.minSampleShading = 1.0f;
 		multisampingCreateInfo.pSampleMask = nullptr;
 		multisampingCreateInfo.alphaToCoverageEnable = VK_FALSE;
@@ -476,13 +477,13 @@ class TriangleApp
 	{
 		VkAttachmentDescription colorAttachment{};
 		colorAttachment.format = swapchainInfo.swapchainImageFormat;
-		colorAttachment.samples = VK_SAMPLE_COUNT_1_BIT;
+		colorAttachment.samples = msaaSamples;
 		colorAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
 		colorAttachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
 		colorAttachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
 		colorAttachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
 		colorAttachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-		colorAttachment.finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
+		colorAttachment.finalLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
 
 		VkAttachmentReference colorAttachmentRef{};
 		colorAttachmentRef.attachment = 0;
@@ -490,7 +491,7 @@ class TriangleApp
 
 		VkAttachmentDescription depthAttachment{};
 		depthAttachment.format = findDepthFormat();
-		depthAttachment.samples = VK_SAMPLE_COUNT_1_BIT;
+		depthAttachment.samples = msaaSamples;
 		depthAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
 		depthAttachment.storeOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
 		depthAttachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
@@ -502,11 +503,26 @@ class TriangleApp
 		depthAttachmentRef.attachment = 1;
 		depthAttachmentRef.layout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
 
+		VkAttachmentDescription colorAttachmentResolve{};
+		colorAttachmentResolve.format = swapchainInfo.swapchainImageFormat;
+		colorAttachmentResolve.samples = VK_SAMPLE_COUNT_1_BIT;
+		colorAttachmentResolve.loadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+		colorAttachmentResolve.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
+		colorAttachmentResolve.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+		colorAttachmentResolve.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+		colorAttachmentResolve.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+		colorAttachmentResolve.finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
+
+		VkAttachmentReference colorAttachmentResolveRef{};
+		colorAttachmentResolveRef.attachment = 2;
+		colorAttachmentResolveRef.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+
 		VkSubpassDescription subpass{};
 		subpass.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
 		subpass.colorAttachmentCount = 1;
 		subpass.pColorAttachments = &colorAttachmentRef;
 		subpass.pDepthStencilAttachment = &depthAttachmentRef;
+		subpass.pResolveAttachments = & colorAttachmentResolveRef;
 
 		VkSubpassDependency dependency{};
 		dependency.srcSubpass = VK_SUBPASS_EXTERNAL;
@@ -516,7 +532,7 @@ class TriangleApp
 		dependency.dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT | VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT;
 		dependency.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT | VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
 
-		std::array<VkAttachmentDescription, 2> attachments = {colorAttachment, depthAttachment};
+		std::array<VkAttachmentDescription, 3> attachments = {colorAttachment, depthAttachment, colorAttachmentResolve};
 		VkRenderPassCreateInfo renderPassInfo{};
 		renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
 		renderPassInfo.attachmentCount = static_cast<uint32_t>(attachments.size());
@@ -535,7 +551,7 @@ class TriangleApp
 	{
 		swapChainFramebuffers.resize(swapChainImageViews.size());
 		for (size_t i = 0; i < swapChainImageViews.size(); ++i) {
-			std::array<VkImageView, 2> attachments = {swapChainImageViews[i], depthImageView};
+			std::array<VkImageView, 3> attachments = {colorImageView, depthImageView, swapChainImageViews[i]};
 			VkFramebufferCreateInfo framebufferInfo{};
 			framebufferInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
 			framebufferInfo.renderPass = renderPass;
@@ -738,6 +754,7 @@ class TriangleApp
 
 		trianglePresentation::createSwapchain(physicalDevice, device, surface, window, swapchainInfo);
 		createImageViews();
+		createColorResources();
 		createDepthResources();
 		createFramebuffers();
 	}
@@ -747,6 +764,9 @@ class TriangleApp
 		vkDestroyImageView(device, depthImageView, nullptr);
 		vkDestroyImage(device, depthImage, nullptr);
 		vkFreeMemory(device, depthImageMemory, nullptr);
+		vkDestroyImageView(device, colorImageView, nullptr);
+		vkDestroyImage(device, colorImage, nullptr);
+		vkFreeMemory(device, colorImageMemory, nullptr);
 		for (auto fb : swapChainFramebuffers) {
 			vkDestroyFramebuffer(device, fb, nullptr);
 		}
@@ -1011,7 +1031,7 @@ class TriangleApp
 		vkUnmapMemory(device, stagingBufferMemory);
 		stbi_image_free(pixels);
 
-		createImage(texWidth, texHeight, mipLevels, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_TILING_OPTIMAL,
+		createImage(texWidth, texHeight, mipLevels, VK_SAMPLE_COUNT_1_BIT, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_TILING_OPTIMAL,
 			    VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
 			    textureImage, textureImageMemory);
 
@@ -1218,7 +1238,7 @@ class TriangleApp
 	void createDepthResources(void)
 	{
 		VkFormat depthFormat = findDepthFormat();
-		createImage(swapchainInfo.swapchainExtent.width, swapchainInfo.swapchainExtent.height, 1, depthFormat, VK_IMAGE_TILING_OPTIMAL,
+		createImage(swapchainInfo.swapchainExtent.width, swapchainInfo.swapchainExtent.height, 1, msaaSamples, depthFormat, VK_IMAGE_TILING_OPTIMAL,
 			    VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, depthImage, depthImageMemory);
 
 		depthImageView = createImageView(depthImage, depthFormat, VK_IMAGE_ASPECT_DEPTH_BIT, 1);
@@ -1380,6 +1400,14 @@ class TriangleApp
 		if (counts & VK_SAMPLE_COUNT_2_BIT) { return VK_SAMPLE_COUNT_2_BIT; }
 
 		return VK_SAMPLE_COUNT_1_BIT;
+	}
+
+	void createColorResources(void)
+	{
+		VkFormat colorFormat = swapchainInfo.swapchainImageFormat;
+		auto extent = swapchainInfo.swapchainExtent;
+		createImage(extent.width, extent.height, 1, msaaSamples, colorFormat, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_TRANSIENT_ATTACHMENT_BIT | VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, colorImage, colorImageMemory);
+		colorImageView = createImageView(colorImage, colorFormat, VK_IMAGE_ASPECT_COLOR_BIT, 1);
 	}
 };
 
