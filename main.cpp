@@ -389,9 +389,9 @@ class TriangleApp
 		// basically its turned off for now
 		VkPipelineMultisampleStateCreateInfo multisampingCreateInfo{};
 		multisampingCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO;
-		multisampingCreateInfo.sampleShadingEnable = VK_FALSE;
+		multisampingCreateInfo.sampleShadingEnable = VK_TRUE; //moar quality
 		multisampingCreateInfo.rasterizationSamples = msaaSamples;
-		multisampingCreateInfo.minSampleShading = 1.0f;
+		multisampingCreateInfo.minSampleShading = .2f; // closer to 1 = more smooth
 		multisampingCreateInfo.pSampleMask = nullptr;
 		multisampingCreateInfo.alphaToCoverageEnable = VK_FALSE;
 		multisampingCreateInfo.alphaToOneEnable = VK_FALSE;
